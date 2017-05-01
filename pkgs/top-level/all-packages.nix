@@ -11329,6 +11329,18 @@ with pkgs;
       ];
   };
 
+  linux_cherrytrail = callPackage ../os-specific/linux/kernel/linux-cherrytrail.nix {
+    kernelPatches = [
+      kernelPatches.bridge_stp_helper
+      kernelPatches.p9_fixes
+      kernelPatches.modinst_arg_list_too_long
+    ] ++ lib.optionals ((platform.kernelArch or null) == "mips") [
+      kernelPatches.mips_fpureg_emu
+      kernelPatches.mips_fpu_sigill
+      kernelPatches.mips_ext3_n32
+    ];
+  };
+
   linux_rpi = callPackage ../os-specific/linux/kernel/linux-rpi.nix {
     kernelPatches = with kernelPatches; [
       bridge_stp_helper
@@ -11577,6 +11589,7 @@ with pkgs;
   # Build the kernel modules for the some of the kernels.
   linuxPackages_mptcp = linuxPackagesFor pkgs.linux_mptcp;
   linuxPackages_rpi = linuxPackagesFor pkgs.linux_rpi;
+  linuxPackages_cherrytrail = linuxPackagesFor pkgs.linux_cherrytrail;
   linuxPackages_3_10 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_10);
   linuxPackages_4_4 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_4_4);
   linuxPackages_4_9 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_4_9);

@@ -138,6 +138,12 @@ in rec {
     inherit system;
   });
 
+  iso_graphical_cherrytrail = genAttrs [ "x86_64-linux" ] (system: makeIso {
+    module = ./modules/installer/cd-dvd/installation-cd-graphical-kde-cherrytrail.nix;
+    type = "graphical-cherrytrail";
+    inherit system;
+  });
+
   # A variant with a more recent (but possibly less stable) kernel
   # that might support more hardware.
   iso_minimal_new_kernel = genAttrs [ "x86_64-linux" ] (system: makeIso {

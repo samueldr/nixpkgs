@@ -636,6 +636,36 @@ with stdenv.lib;
     ''}
   ''}
 
+  ${optionalString (features.intelCherrytrail or false) ''
+    # Cherry trail faffing around.
+
+    # Next two are broken build.
+    DRM_GM12U320 n
+    PHY_QCOM_USB_HS n
+
+    # The USB_XHCI build is broken as a module, as of right now.
+    # https://www.spinics.net/lists/linux-usb/msg151039.html
+    USB y
+    USB_XHCI_HCD y
+    USB_XHCI_PCI y
+
+    # Designware tests.
+    # Might not work as a module...
+    I2C y
+    I2C_DESIGNWARE_CORE y
+    I2C_DESIGNWARE_PLATFORM y
+    I2C_DESIGNWARE_PCI y
+    I2C_DESIGNWARE_BAYTRAIL y
+
+    # See:
+    # https://bugs.freedesktop.org/show_bug.cgi?id=96571
+    PWM y
+    PWM_CRC y
+    #I2C_DESIGNWARE_PLATFORM y
+    #I2C_DESIGNWARE_PCI y
+    INTEL_SOC_PMIC y
+    DRM_I915 m
+  ''}
   ${kernelPlatform.kernelExtraConfig or ""}
   ${extraConfig}
 ''
