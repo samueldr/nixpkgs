@@ -665,6 +665,10 @@ with stdenv.lib;
     #I2C_DESIGNWARE_PCI y
     INTEL_SOC_PMIC y
     DRM_I915 m
+
+    # hci_h5.c is built for HCIUART_3WIRE.
+    # The h5 protocol is used for rtl8723bs.
+    BT_HCIUART_3WIRE y
   ''}
   ${kernelPlatform.kernelExtraConfig or ""}
   ${extraConfig}
