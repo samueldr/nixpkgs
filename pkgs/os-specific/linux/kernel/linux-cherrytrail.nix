@@ -2,20 +2,15 @@
 
 assert stdenv.is64bit;
 
-import ./generic.nix (args // rec {
-  version = "4.11.0-rc5";
-  extraMeta.branch = "4.11";
+stdenv.lib.overrideDerivation (import ./generic.nix (args // rec {
+  version = "4.12.0-rc1";
+  extraMeta.branch = "4.12";
 
   src = fetchFromGitHub {
-    #owner = "jwrdegoede";
-    #repo = "linux-sunxi";
-    # FIXME : Find a way to remove `.config` file without forking.
-    # When I override the patch phases weird stuff happens.
-    # I might need to jump into a nix-shell to look around and understand.
-    owner = "samueldr";
-    repo = "linux";
-    rev = "d10fb04ff7d4e800ca6c17cf1e1d39ff89f8653d";
-    sha256 = "171w7h417j3xw4jlgv9b3wk24pp3534xggi2mahs62m9is7l78rm";
+    owner = "jwrdegoede";
+    repo = "linux-sunxi";
+    rev = "f7224d6a2ae5f810b646d43169a27d88b088fec7";
+    sha256 = "1y49qrrla61fw59cmkkc2ks8chkw13bi8ijv417nxbrfwmgs2vas";
   };
 
   features.iwlwifi = true;
@@ -28,4 +23,9 @@ import ./generic.nix (args // rec {
 
   extraMeta.hydraPlatforms = [];
 
-} // (args.argsOverride or {}))
+})) (oldAttrs: {
+  preConfigurePhases = ["mrproperPhase"];
+  mrproperPhase = ''
+    rm .config
+  '';
+})
