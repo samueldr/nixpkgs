@@ -3,14 +3,14 @@
 assert stdenv.is64bit;
 
 stdenv.lib.overrideDerivation (import ./generic.nix (args // rec {
-  version = "4.12.0-rc1";
+  version = "4.12.0-rc5";
   extraMeta.branch = "4.12";
 
   src = fetchFromGitHub {
     owner = "jwrdegoede";
     repo = "linux-sunxi";
-    rev = "f7224d6a2ae5f810b646d43169a27d88b088fec7";
-    sha256 = "1y49qrrla61fw59cmkkc2ks8chkw13bi8ijv417nxbrfwmgs2vas";
+    rev = "86d3fac25d8556b18b72195a218365bb6c447a9f";
+    sha256 = "0bb3mbx6mf1azbcd6z3l5jsrkczwi45ykhhm3jpv6zfjgab2m4vk";
   };
 
   features.iwlwifi = true;
