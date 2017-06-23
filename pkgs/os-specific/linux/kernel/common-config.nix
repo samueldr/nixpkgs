@@ -204,7 +204,9 @@ with stdenv.lib;
   SND_AC97_POWER_SAVE y # AC97 Power-Saving Mode
   SND_HDA_INPUT_BEEP y # Support digital beep via input layer
   SND_USB_CAIAQ_INPUT y
+  ${optionalString (versionOlder version "4.12") ''
   PSS_MIXER y # Enable PSS mixer (Beethoven ADSP-16 and other compatible)
+  ''}
 
   # USB serial devices.
   USB_SERIAL_GENERIC y # USB Generic Serial Driver
