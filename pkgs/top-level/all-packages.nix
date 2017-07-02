@@ -15212,6 +15212,8 @@ with pkgs;
 
   lightdm_gtk_greeter = callPackage ../applications/display-managers/lightdm-gtk-greeter { };
 
+  lightdm_web_greeter = callPackage ../applications/display-managers/lightdm-web-greeter { };
+
   slic3r = callPackage ../applications/misc/slic3r { };
 
   curaengine = callPackage ../applications/misc/curaengine { };

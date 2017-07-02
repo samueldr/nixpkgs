@@ -68,6 +68,7 @@ in
   # here determines the default: later modules (if enable) are
   # preferred.
   imports = [
+    ./lightdm-greeters/web.nix
     ./lightdm-greeters/gtk.nix
   ];
 

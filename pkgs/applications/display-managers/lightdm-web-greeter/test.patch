@@ -1,0 +1,119 @@
+diff --git a/src/greeter.c b/src/greeter.c
+index c94b1a1..e2e4ed5 100644
+--- a/src/greeter.c
++++ b/src/greeter.c
+@@ -94,6 +94,39 @@ create_new_webkit_settings_object(void) {
+ 
+ 
+ static gboolean
++load_failed_cb(WebKitWebView *view,
++		WebKitLoadEvent load_event,
++		gchar          *failing_uri,
++		GError         *error,
++		gpointer        user_data
++		) {
++
++		g_warning ("Load Failed: %s", error->message);
++		//g_error_free(error);
++	return false;
++}
++static void web_view_load_changed_cb (WebKitWebView  *web_view,
++                                   WebKitLoadEvent load_event,
++                                   gpointer        user_data)
++{
++    switch (load_event) {
++    case WEBKIT_LOAD_STARTED:
++		g_warning("WEBKIT_LOAD_STARTED");
++        break;
++    case WEBKIT_LOAD_REDIRECTED:
++		g_warning("WEBKIT_LOAD_REDIRECTED");
++        break;
++    case WEBKIT_LOAD_COMMITTED:
++		g_warning("WEBKIT_LOAD_COMMITTED %s", webkit_web_view_get_uri(web_view));
++        break;
++    case WEBKIT_LOAD_FINISHED:
++		g_warning("WEBKIT_LOAD_FINISHED");
++        break;
++    }
++}
++
++
++static gboolean
+ context_menu_cb(WebKitWebView *view,
+ 				WebKitContextMenu *context_menu,
+ 				GdkEvent *event,
+@@ -214,10 +247,11 @@ message_received_cb(WebKitUserContentManager *manager,
+ 
+ 	} else {
+ 		message_str = "";
+-		printf("Error running javascript: unexpected return value");
++		g_warning("%s\n", "Error running javascript: unexpected return value");
+ 	}
+ 
+ 	if (0 == g_strcmp0(message_str, "JavaScriptException")) {
++		g_warning("%s: %s\n", "JavaScriptException [...]", message_str);
+ 		show_theme_recovery_modal();
+ 
+ 	} else if (0 == g_strcmp0(message_str, "LockHint")) {
+@@ -308,6 +342,7 @@ theme_function_exists_cb(GObject *object,
+ 	}
+ 
+ 	if (FALSE == result_as_bool) {
++		g_warning("%s\n", "theme_function_exists_cb FALSE [...]");
+ 		show_theme_recovery_modal();
+ 	}
+ 
+@@ -401,7 +436,7 @@ main(int argc, char **argv) {
+ 		}
+ 	}
+ 
+-	debug_mode = g_key_file_get_boolean(keyfile, "greeter", "debug_mode", NULL);
++	debug_mode = TRUE;//g_key_file_get_boolean(keyfile, "greeter", "debug_mode", NULL);
+ 
+ 	if ( NULL != err) {
+ 		g_clear_error(&err);
+@@ -482,6 +517,10 @@ main(int argc, char **argv) {
+ 	/* Maybe disable the context (right-click) menu. */
+ 	g_signal_connect(WEBKIT_WEB_VIEW(web_view), "context-menu", G_CALLBACK(context_menu_cb), NULL);
+ 
++	/* Checks for issues */
++	g_signal_connect(WEBKIT_WEB_VIEW(web_view), "load-failed", G_CALLBACK(load_failed_cb), NULL);
++	g_signal_connect(WEBKIT_WEB_VIEW(web_view), "load-changed", G_CALLBACK(web_view_load_changed_cb), NULL);
++
+ 	/* Register callback to check if theme loaded successfully */
+ 	g_timeout_add_seconds(10, (GSourceFunc) maybe_show_theme_fallback_dialog, NULL);
+ 
+@@ -490,13 +529,15 @@ main(int argc, char **argv) {
+ 	webkit_web_view_load_uri(WEBKIT_WEB_VIEW(web_view),
+ 							 g_strdup_printf("file://%s/%s/index.html", THEME_DIR, theme));
+ 
++	g_warning("THEME DIR : %s && theme: %s \n", THEME_DIR, theme);
++
+ 	gtk_widget_show_all(window);
+ 	gtk_widget_set_can_focus(GTK_WIDGET(web_view), TRUE);
+ 	gtk_widget_grab_focus(GTK_WIDGET(web_view));
+ 
+-	g_debug("Entering Gtk loop...");
++	g_warning("Entering Gtk loop...");
+ 	gtk_main();
+-	g_debug("Exited Gtk loop.");
++	g_warning("Exited Gtk loop.");
+ 
+ 	return 0;
+ }
+diff --git a/themes/antergos/index.html b/themes/antergos/index.html
+index 64bf412..67cf711 100644
+--- a/themes/antergos/index.html
++++ b/themes/antergos/index.html
+@@ -36,6 +36,11 @@
+ 	<meta name="description" content="Theme: antergos">
+ 	<meta name="author" content="Dustin Falgout">
+ 
++	<script>
++console.log("Everything is all ok");
++console.errpr("Everything is all ok (err)");
++	</script>
++
+ 	<!--For testing the theme in a web browser -->
+ 	<!--<script type="text/javascript" src="../_vendor/js/mock.js"></script>-->
+ 
