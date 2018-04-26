@@ -14068,6 +14068,8 @@ with pkgs;
 
   ubootRock64 = callPackage ../misc/uboot/rock64.nix { };
 
+  ubootHAC = callPackage ../misc/uboot/HAC.nix { };
+
   uclibc = callPackage ../os-specific/linux/uclibc { };
 
   uclibcCross = lowPrio (callPackage ../os-specific/linux/uclibc {
