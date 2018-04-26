@@ -82,4 +82,23 @@ in rec {
     extraMeta.platforms = ["aarch64-linux"];
     filesToInstall = [ "build/${platform}/release/bl31/bl31.elf"];
   };
+
+  armTrustedFirmwareHAC = buildArmTrustedFirmware rec {
+    target_soc = "t210";
+    extraMakeFlags = [ "TARGET_SOC=${target_soc}" ];
+    version = "1.4";
+    src = fetchFromGitHub {
+      owner = "fail0verflow";
+      repo = "switch-arm-trusted-firmware";
+      # Branch: `coreboot`
+      rev = "66c6a0c87982db087b3bab35316e7a59127c12fd";
+      sha256 = "15d59q3bd97vn0kynk6zl8p2wphnkg4n80k9q2w323c1j4dyicbr";
+    };
+    platform = "tegra";
+    extraMeta.platforms = ["aarch64-linux"];
+    filesToInstall = [
+      "build/${platform}/${target_soc}/release/bl31.bin"
+      "build/${platform}/${target_soc}/release/bl31/bl31.dump"
+    ];
+  };
 }

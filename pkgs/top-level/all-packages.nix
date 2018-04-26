@@ -13005,6 +13005,7 @@ with pkgs;
     armTrustedFirmwareAllwinner
     armTrustedFirmwareQemu
     armTrustedFirmwareRK3328
+    armTrustedFirmwareHAC
     ;
 
   microcodeAmd = callPackage ../os-specific/linux/microcode/amd.nix { };
