@@ -1,12 +1,57 @@
-{ stdenv, hostPlatform
-, fetchFromGitHub
-, linuxManualConfig
-, bison, flex
-, binutils-unwrapped
-, kernelPatches ? [] }:
+#{ stdenv, hostPlatform
+#, fetchFromGitHub
+#, linuxManualConfig
+#, bison, flex
+#, binutils-unwrapped
+#, kernelPatches ? [] }:
+#
+## Inspired by https://github.com/thefloweringash/rock64-nix/blob/master/packages/linux_ayufan_4_4.nix
+#
+#
+#let
+#  buildLinux = (args: (linuxManualConfig args).overrideAttrs ({ makeFlags, ... }: {
+#    # Necessary?
+#    postPatch = ''
+#      patchShebangs .
+#    '';
+#    makeFlags = makeFlags ++ [
+#      # Why do I have to do this??
+#      "OBJCOPY=${binutils-unwrapped}/bin/${stdenv.cc.targetPrefix}objcopy"
+#      "AR=${binutils-unwrapped}/bin/${stdenv.cc.targetPrefix}ar"
+#    ];
+#  }));
+#
+#  configfile = stdenv.mkDerivation {
+#    name = "HAC-linux-kernel-config-4.16";
+#    inherit version;
+#    inherit src;
+#    nativeBuildInputs = [bison flex];
+#
+#    buildPhase = ''
+#      make nintendo-switch_defconfig
+#    '';
+#
+#    installPhase = ''
+#      cp .config $out
+#    '';
+#  };
+#
+#in
+#
+#buildLinux {
+#  inherit stdenv kernelPatches;
+#  inherit hostPlatform;
+#  inherit src;
+#  inherit version;
+#
+#  modDirVersion = "4.16.0-rc1";
+#
+#  inherit configfile;
+#
+#  allowImportFromDerivation = true;
+#}
 
-# Inspired by https://github.com/thefloweringash/rock64-nix/blob/master/packages/linux_ayufan_4_4.nix
-
+{ stdenv, buildPackages, hostPlatform, fetchFromGitHub, perl, buildLinux, ... } @ args:
 let
   src = fetchFromGitHub {
     owner = "fail0verflow";
@@ -17,68 +62,25 @@ let
   version = "4.16.0-rc1";
 in
 
-let
-  buildLinux = (args: (linuxManualConfig args).overrideAttrs ({ makeFlags, ... }: {
-    # Necessary?
-    postPatch = ''
-      patchShebangs .
-    '';
-    makeFlags = makeFlags ++ [
-      # Why do I have to do this??
-      "OBJCOPY=${binutils-unwrapped}/bin/${stdenv.cc.targetPrefix}objcopy"
-      "AR=${binutils-unwrapped}/bin/${stdenv.cc.targetPrefix}ar"
-    ];
-  }));
-
-  configfile = stdenv.mkDerivation {
-    name = "HAC-linux-kernel-config-4.16";
-    inherit version;
-    inherit src;
-    nativeBuildInputs = [bison flex];
-
-    buildPhase = ''
-      make nintendo-switch_defconfig
-    '';
-
-    installPhase = ''
-      cp .config $out
-    '';
-  };
-
-in
-
-buildLinux {
-  inherit stdenv kernelPatches;
-  inherit hostPlatform;
-  inherit src;
-  inherit version;
-
-  modDirVersion = "4.16.0-rc1";
-
-  inherit configfile;
-
-  allowImportFromDerivation = true;
-}
-
-# { stdenv, buildPackages, hostPlatform, fetchFromGitHub, perl, buildLinux, ... } @ args:
-# 
-# buildLinux (args // {
-# 
-#   kernelPatches = args.kernelPatches;
-# 
-#   features.iwlwifi = true;
-#   features.efiBootStub = false;
-#   features.needsCifsUtils = true;
-#   features.netfilterRPFilter = true;
-# 
-# #  # https://github.com/NixOS/nixpkgs/issues/35166#issuecomment-366594016
-# #  # override aarch64-multiplatform settings.
-# #  # not the right way to do this; need advice.
-# #  hostPlatform = hostPlatform // {
-# #    platform = hostPlatform.platform // {
-# #      kernelBaseConfig = "nintendo-switch_defconfig";
-# #      kernelAutoModules = false; # compilation failures otherwise
-# #    };
-# #  };
-# 
-# } // (args.argsOverride or {}))
+ buildLinux (args // {
+   inherit version;
+   inherit src;
+ 
+   kernelPatches = args.kernelPatches;
+ 
+   features.iwlwifi = true;
+   features.efiBootStub = false;
+   features.needsCifsUtils = true;
+   features.netfilterRPFilter = true;
+ 
+ #  # https://github.com/NixOS/nixpkgs/issues/35166#issuecomment-366594016
+ #  # override aarch64-multiplatform settings.
+ #  # not the right way to do this; need advice.
+ #  hostPlatform = hostPlatform // {
+ #    platform = hostPlatform.platform // {
+ #      kernelBaseConfig = "nintendo-switch_defconfig";
+ #      kernelAutoModules = false; # compilation failures otherwise
+ #    };
+ #  };
+ 
+ } // (args.argsOverride or {}))
