@@ -21316,4 +21316,6 @@ with pkgs;
   xml2rfc = callPackage ../tools/typesetting/xml2rfc { };
 
   mmark = callPackage ../tools/typesetting/mmark { };
+
+  shofel2 = callPackage ../os-specific/linux/shofel2/default.nix { };
 }
