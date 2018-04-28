@@ -1,6 +1,8 @@
 { stdenv, hostPlatform
+, fetchurl
 , fetchFromGitHub
 , linuxManualConfig
+, firmwareLinuxNonfree
 , bison, flex
 , binutils-unwrapped
 , kernelPatches ? [] }:
@@ -8,6 +10,21 @@
 # Inspired by https://github.com/thefloweringash/rock64-nix/blob/master/packages/linux_ayufan_4_4.nix
 
 let
+  withAdditionalFirmware = stdenv.mkDerivation rec {
+    brcmfmac4356-pcie_txt = fetchurl {
+      # FIXME : get a more official source.
+      url = "https://raw.githubusercontent.com/andir/nixos-gpd-pocket/master/firmware/brcmfmac4356-pcie.txt";
+      sha256 = "1v44f7y8pxqw3xmk2v43ny5lhjg6lpch2alry40pdzq56pnplypi";
+    };
+    name = "plus-extra--${firmwareLinuxNonfree.name}";
+    src = firmwareLinuxNonfree;
+    dontBuild = true;
+    installPhase = ''
+      cp -prf . $out
+      cp ${brcmfmac4356-pcie_txt} $out/lib/firmware/brcm/brcmfmac4356-pcie.txt
+    '';
+  };
+
   version = "4.16.0-rc1";
   src = fetchFromGitHub {
     owner = "fail0verflow";
@@ -19,20 +36,20 @@ let
     ./HAC-uncross.diff
     ./HAC-sdhci-voltage.patch
   ];
+  postPatch = ''
+    patchShebangs .
+  '';
 
 in
 let
   buildLinux = (args: (linuxManualConfig args).overrideAttrs ({ makeFlags, kernelPatches ? [], ... }: {
-    postPatch = ''
-      patchShebangs .
-    '';
-    inherit patches;
+    inherit patches postPatch;
   }));
 
   configfile = stdenv.mkDerivation {
     name = "HAC-linux-kernel-config-4.16";
     inherit version;
-    inherit src patches;
+    inherit src patches postPatch;
     nativeBuildInputs = [bison flex];
 
     buildPhase = ''
@@ -40,6 +57,9 @@ let
     '';
 
     installPhase = ''
+      substituteInPlace .config --replace \
+        /lib/firmware \
+        "${withAdditionalFirmware}/lib/firmware"
       cp .config $out
     '';
   };
