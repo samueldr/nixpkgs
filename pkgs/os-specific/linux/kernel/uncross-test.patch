@@ -1,0 +1,10 @@
+diff --git a/arch/arm64/configs/nintendo-switch_defconfig b/arch/arm64/configs/nintendo-switch_defconfig
+index 2d0262498c9e..50c2b6e1b22b 100644
+--- a/arch/arm64/configs/nintendo-switch_defconfig
++++ b/arch/arm64/configs/nintendo-switch_defconfig
+@@ -1,4 +1,4 @@
+-CONFIG_CROSS_COMPILE="aarch64-linux-gnu-"
++CONFIG_CROSS_COMPILE="MEGATEST-"
+ CONFIG_SYSVIPC=y
+ CONFIG_POSIX_MQUEUE=y
+ CONFIG_NO_HZ=y

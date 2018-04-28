@@ -15,28 +15,24 @@ let
     rev = "01b404c2112028a48ccf533b84218689032054c3";
     sha256 = "1x7bvc69rhnkx3cy4djsjk0hrc6ypdsnm3465v1gxmddd3fx1mjb";
   };
+  patches = [
+    ./HAC-uncross.diff
+    ./HAC-sdhci-voltage.patch
+  ];
+
 in
 let
   buildLinux = (args: (linuxManualConfig args).overrideAttrs ({ makeFlags, kernelPatches ? [], ... }: {
-    # Necessary?
     postPatch = ''
       patchShebangs .
     '';
-    #makeFlags = makeFlags ++ [
-    #  # Why do I have to do this??
-    #  "OBJCOPY=${binutils-unwrapped}/bin/${stdenv.cc.targetPrefix}objcopy"
-    #  "AR=${binutils-unwrapped}/bin/${stdenv.cc.targetPrefix}ar"
-    #];
-    patches = [
-      ./HAC-uncross.diff
-    ];
-
+    inherit patches;
   }));
 
   configfile = stdenv.mkDerivation {
     name = "HAC-linux-kernel-config-4.16";
     inherit version;
-    inherit src;
+    inherit src patches;
     nativeBuildInputs = [bison flex];
 
     buildPhase = ''

@@ -1,0 +1,13 @@
+diff --git a/drivers/mmc/host/sdhci-xenon.c b/drivers/mmc/host/sdhci-xenon.c
+index 4d0791f6ec23..3dd0b602d907 100644
+--- a/drivers/mmc/host/sdhci-xenon.c
++++ b/drivers/mmc/host/sdhci-xenon.c
+@@ -230,7 +230,7 @@ static void xenon_set_power(struct sdhci_host *host, unsigned char mode,
+ 		mmc_regulator_set_ocr(mmc, mmc->supply.vmmc, vdd);
+ }
+ 
+-static void xenon_voltage_switch(struct sdhci_host *host)
++static void xenon_voltage_switch(struct sdhci_host *host, struct mmc_ios *ios)
+ {
+ 	/* Wait for 5ms after set 1.8V signal enable bit */
+ 	usleep_range(5000, 5500);
