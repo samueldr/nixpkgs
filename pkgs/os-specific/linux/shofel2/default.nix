@@ -57,4 +57,7 @@ stdenv.mkDerivation rec {
       --replace '@OUT@' "$out"
     wrapPythonProgramsIn "$out/misc" "$out $pythonPath"
   '';
+  fixupPhase = ''
+    echo "done!"
+  '';
 }
