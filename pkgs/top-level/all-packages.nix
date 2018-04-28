@@ -21318,4 +21318,6 @@ with pkgs;
   mmark = callPackage ../tools/typesetting/mmark { };
 
   shofel2 = callPackage ../os-specific/linux/shofel2/default.nix { };
+
+  imx-usb-loader = callPackage ../os-specific/linux/imx_usb_loader/default.nix { };
 }
