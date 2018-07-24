@@ -39,6 +39,7 @@ let
   patches = {
     qtbase = [
       ./qtbase.patch
+      ./qtbase-additional.patch
       ./qtbase-darwin.patch
       ./qtbase-revert-no-macos10.10.patch
     ];
