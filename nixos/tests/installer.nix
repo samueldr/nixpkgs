@@ -62,8 +62,17 @@ let
   # disk, and then reboot from the hard disk.  It's parameterized with
   # a test script fragment `createPartitions', which must create
   # partitions and filesystems.
+  #
+  # additionalTestCommands will run after the last verification boot.
+  # If additionalTestCommands needs to reboot, it will need to call
+  # the `_run_createMachine` helper.
+  #
+  # FIXME: The `_run_createMachine` is an internal function meant to be used
+  # to run `createMachine` properly outside this function.
+  # This is a leaky abstraction for `additionalTestCommands`.
   testScriptFun = { bootLoader, createPartitions, grubVersion, grubDevice, grubUseEfi
                   , grubIdentifier, preBootCommands, extraConfig
+                  , additionalTestCommands ? ""
                   }:
     let
       iface = if grubVersion == 1 then "ide" else "virtio";
@@ -82,6 +91,15 @@ let
     in if !isEfi && !(pkgs.stdenv.isi686 || pkgs.stdenv.isx86_64) then
       throw "Non-EFI boot methods are only supported on i686 / x86_64"
     else ''
+      # FIXME: leaky abstraction.
+      sub _run_createMachine {
+        my ($name) = @_;
+        my $machine = createMachine({ ${hdFlags} qemuFlags => "${qemuFlags}", $name });
+        ${preBootCommands}
+
+        return $machine;
+      }
+
       $machine->start;
 
       # Make sure that we get a login prompt etc.
@@ -182,6 +200,8 @@ let
       ${preBootCommands}
       $machine->waitForUnit("network.target");
       $machine->shutdown;
+
+      ${additionalTestCommands}
     '';
 
 
@@ -191,6 +211,7 @@ let
     , bootLoader ? "grub" # either "grub" or "systemd-boot"
     , grubVersion ? 2, grubDevice ? "/dev/vda", grubIdentifier ? "uuid", grubUseEfi ? false
     , enableOCR ? false, meta ? {}
+    , additionalTestCommands ? ""
     }:
     makeTest {
       inherit enableOCR;
@@ -263,7 +284,8 @@ let
 
       testScript = testScriptFun {
         inherit bootLoader createPartitions preBootCommands
-                grubVersion grubDevice grubIdentifier grubUseEfi extraConfig;
+                grubVersion grubDevice grubIdentifier grubUseEfi extraConfig
+                additionalTestCommands;
       };
     };
 
@@ -664,5 +686,120 @@ in {
       );
     '';
   };
+
+  # Tests child configurations in GRUB (legacy).
+  childConfigGrubLegacy = makeInstallerTest "childConfigGrubLegacy"
+    { createPartitions =
+        ''
+          $machine->succeed(
+              "parted --script /dev/vda mklabel msdos",
+              "parted --script /dev/vda -- mkpart primary linux-swap 1M 1024M",
+              "parted --script /dev/vda -- mkpart primary ext2 1024M -1s",
+              "udevadm settle",
+              "mkswap /dev/vda1 -L swap",
+              "swapon -L swap",
+              "mkfs.ext3 -L nixos /dev/vda2",
+              "mount LABEL=nixos /mnt",
+          );
+        '';
+        bootLoader = "grub";
+        grubUseEfi = false;
+        additionalTestCommands = ''
+          _run_createMachine("default-config");
+          $machine->waitForUnit("multi-user.target");
+          # Booted configuration name should be Home
+          # This is not the name that shows in the grub menu.
+          # The default configuration is always shown as "Default"
+          $machine->succeed("cat /run/booted-system/configuration-name | grep Home");
+
+          # This file is not available in the "Home" child configuration.
+          $machine->fail("test -e /etc/test-validation");
+
+          # Set grub to boot the second configuration
+          $machine->succeed("grub-reboot 1");
+
+          $machine->shutdown();
+
+          _run_createMachine("child-config");
+          $machine->waitForUnit("multi-user.target");
+
+          $machine->succeed("cat /run/booted-system/configuration-name | grep Other");
+
+          # We should find a file named /etc/gitconfig
+          $machine->succeed("test -e /etc/test-validation");
+          $machine->shutdown();
+        '';
+
+        extraConfig = ''
+          environment.systemPackages = [ pkgs.grub2 ];
+          boot.loader.grub.configurationName = "Home";
+          nesting.clone = [
+            {
+              boot.loader.grub.configurationName = lib.mkForce "Other";
+              environment.etc."test-validation".text = "OK";
+            }
+          ];
+        '';
+    };
+
+  # Tests child configurations in GRUB (EFI).
+  childConfigGrubUEFI = makeInstallerTest "childConfigGrubUEFI"
+    { createPartitions =
+        ''
+          $machine->succeed(
+              "parted --script /dev/vda mklabel gpt",
+              "parted --script /dev/vda -- mkpart ESP fat32 1M 50MiB", # /boot
+              "parted --script /dev/vda -- set 1 boot on",
+              "parted --script /dev/vda -- mkpart primary linux-swap 50MiB 1024MiB",
+              "parted --script /dev/vda -- mkpart primary ext2 1024MiB -1MiB", # /
+              "udevadm settle",
+              "mkswap /dev/vda2 -L swap",
+              "swapon -L swap",
+              "mkfs.ext3 -L nixos /dev/vda3",
+              "mount LABEL=nixos /mnt",
+              "mkfs.vfat -n BOOT /dev/vda1",
+              "mkdir -p /mnt/boot",
+              "mount LABEL=BOOT /mnt/boot",
+          );
+        '';
+        bootLoader = "grub";
+        grubUseEfi = true;
+        additionalTestCommands = ''
+          _run_createMachine("default-config");
+          $machine->waitForUnit("multi-user.target");
+          # Booted configuration name should be Home
+          # This is not the name that shows in the grub menu.
+          # The default configuration is always shown as "Default"
+          $machine->succeed("cat /run/booted-system/configuration-name | grep Home");
+
+          # This file is not available in the "Home" child configuration.
+          $machine->fail("test -e /etc/test-validation");
+
+          # Set grub to boot the second configuration
+          $machine->succeed("grub-reboot 1");
+
+          $machine->shutdown();
+
+          _run_createMachine("child-config");
+          $machine->waitForUnit("multi-user.target");
+
+          $machine->succeed("cat /run/booted-system/configuration-name | grep Other");
+
+          # We should find a file named /etc/gitconfig
+          $machine->succeed("test -e /etc/test-validation");
+          $machine->shutdown();
+        '';
+
+        extraConfig = ''
+          environment.systemPackages = [ pkgs.grub2 ];
+          boot.loader.grub.configurationName = "Home";
+          nesting.clone = [
+            {
+              boot.loader.grub.configurationName = lib.mkForce "Other";
+              environment.etc."test-validation".text = "OK";
+            }
+          ];
+        '';
+    };
 
 }
