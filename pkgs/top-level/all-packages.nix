@@ -1521,6 +1521,8 @@ with pkgs;
 
   meson = callPackage ../development/tools/build-managers/meson { };
 
+  meson-tools = callPackage ../development/tools/meson-tools { };
+
   metabase = callPackage ../servers/metabase { };
 
   mkspiffs = callPackage ../tools/filesystems/mkspiffs { };
