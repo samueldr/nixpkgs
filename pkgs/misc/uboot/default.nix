@@ -1,9 +1,33 @@
 { stdenv, fetchurl, fetchpatch, bc, bison, dtc, flex, openssl, python2, swig
+, fetchFromGitHub
 , armTrustedFirmwareAllwinner
+, meson-tools
 , buildPackages
 }:
 
 let
+  hardkernel-u-boot = fetchFromGitHub {
+    owner = "hardkernel";
+    repo = "u-boot";
+    rev = "205c7b3259559283161703a1a200b787c2c445a5";
+    sha256 = "10snn1d36x8kg9q7pnwb46b1g6gpfrn6plwic8bsvp2f986w3gzm";
+  };
+  fip-tools = stdenv.mkDerivation rec {
+    name = "fip-tools-${version}";
+    version = "odroid-2017-02-24";
+    src = hardkernel-u-boot;
+    buildFlags = "-C tools/fip_create";
+    installPhase = ''
+      runHook preInstall
+
+      mkdir -p $out/bin
+      cp tools/fip_create/fip_create $out/bin/
+      mkdir -p $out/share
+      cp -r fip/gxb $out/share/
+
+      runHook postInstall
+    '';
+  };
   buildUBoot = { filesToInstall
             , installDir ? "$out"
             , defconfig
@@ -144,6 +168,24 @@ in rec {
     defconfig = "novena_defconfig";
     extraMeta.platforms = ["armv7l-linux"];
     filesToInstall = ["u-boot.bin" "SPL"];
+  };
+
+  ubootOdroidC2 = buildUBoot rec {
+    defconfig = "odroid-c2_defconfig";
+    extraMeta.platforms = ["aarch64-linux"];
+    filesToInstall = ["bl1.bin.hardkernel" "u-boot.gxbb"];
+    preInstall = ''
+      ${fip-tools}/bin/fip_create \
+        --bl30  ${fip-tools}/share/gxb/bl30.bin \
+        --bl301 ${fip-tools}/share/gxb/bl301.bin \
+        --bl31  ${fip-tools}/share/gxb/bl31.bin \
+        --bl33  u-boot.bin \
+        fip.bin
+      cat ${fip-tools}/share/gxb/bl2.package fip.bin > boot_new.bin
+      ${meson-tools}/bin/amlbootsig boot_new.bin u-boot.img
+      dd if=u-boot.img of=u-boot.gxbb bs=512 skip=96
+      cp ${hardkernel-u-boot}/sd_fuse/bl1.bin.hardkernel ./
+    '';
   };
 
   ubootOdroidXU3 = buildUBoot rec {
