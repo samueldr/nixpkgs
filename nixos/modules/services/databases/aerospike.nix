@@ -42,7 +42,11 @@ in
       enable = mkEnableOption "Aerospike server";
 
       package = mkOption {
-        default = pkgs.aerospike;
+        default =
+          if (lib.any (lib.meta.platformMatch pkgs.stdenv.hostPlatform) pkgs.aerospike.meta.platforms)
+          then pkgs.aerospike
+          else null
+        ;
         type = types.package;
         description = "Which Aerospike derivation to use";
       };
