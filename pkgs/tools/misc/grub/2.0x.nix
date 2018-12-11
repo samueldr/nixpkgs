@@ -60,30 +60,29 @@ stdenv.mkDerivation rec {
   # Work around a bug in the generated flex lexer (upstream flex bug?)
   NIX_CFLAGS_COMPILE = "-Wno-error";
 
-  preConfigure =
-    '' for i in "tests/util/"*.in
-       do
-         sed -i "$i" -e's|/bin/bash|/bin/sh|g'
-       done
+  preConfigure = ''
+    for i in "tests/util/"*.in; do
+      sed -i "$i" -e's|/bin/bash|/bin/sh|g'
+    done
 
-       # Needs to be done pre-configure as we are using autoreconfHook
-       # Patches in the location of our unifont.
-       substituteInPlace ./configure --replace '/usr/share/fonts/unifont' '${unifont}/share/fonts'
+    # Needs to be done pre-configure as we are using autoreconfHook
+    # Patches in the location of our unifont.
+    substituteInPlace ./configure --replace '/usr/share/fonts/unifont' '${unifont}/share/fonts'
 
-       # Apparently, the QEMU executable is no longer called
-       # `qemu-system-i386', even on i386.
-       #
-       # In addition, use `-nodefaults' to avoid errors like:
-       #
-       #  chardev: opening backend "stdio" failed
-       #  qemu: could not open serial device 'stdio': Invalid argument
-       #
-       # See <http://www.mail-archive.com/qemu-devel@nongnu.org/msg22775.html>.
-       sed -i "tests/util/grub-shell.in" \
-           -e's/qemu-system-i386/qemu-system-x86_64 -nodefaults/g'
+    # Apparently, the QEMU executable is no longer called
+    # `qemu-system-i386', even on i386.
+    #
+    # In addition, use `-nodefaults' to avoid errors like:
+    #
+    #  chardev: opening backend "stdio" failed
+    #  qemu: could not open serial device 'stdio': Invalid argument
+    #
+    # See <http://www.mail-archive.com/qemu-devel@nongnu.org/msg22775.html>.
+    sed -i "tests/util/grub-shell.in" \
+        -e's/qemu-system-i386/qemu-system-x86_64 -nodefaults/g'
 
-      unset CPP # setting CPP intereferes with dependency calculation
-    '';
+    unset CPP # setting CPP intereferes with dependency calculation
+  '';
 
   patches = [
     ./fix-bash-completion.patch
