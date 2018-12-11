@@ -1,0 +1,54 @@
+From bba466cd55de5a76880c6790bfbf20cb9558dae6 Mon Sep 17 00:00:00 2001
+From: Samuel Dionne-Riel <samuel@dionne-riel.com>
+Date: Sun, 16 Dec 2018 12:59:48 -0500
+Subject: [PATCH] arm: Finishes removing refs to kern/arm/efi/misc.c
+
+The commit adding the patches (e917f6f00275c6480a1889b3afb7c6d6566165fb)
+in the debian repository does not clean the source files that generates
+the makefiles, which makes our autoreconfHook output half-broken makefiles.
+---
+ grub-core/Makefile.core.am |  2 +-
+ grub-core/Makefile.in      | 14 --------------
+ 2 files changed, 1 insertion(+), 15 deletions(-)
+
+diff --git a/grub-core/Makefile.core.am b/grub-core/Makefile.core.am
+index 484c2d7d8..0dd654180 100644
+--- a/grub-core/Makefile.core.am
++++ b/grub-core/Makefile.core.am
+@@ -20325,7 +20325,7 @@ endif
+ if COND_arm_efi
+ platform_PROGRAMS += kernel.exec
+ kernel_exec_SOURCES  = kern/arm/efi/startup.S 
+-kernel_exec_SOURCES += kern/arm/efi/init.c kern/arm/efi/misc.c kern/efi/fdt.c kern/arm/dl.c kern/arm/dl_helper.c kern/arm/cache_armv6.S kern/arm/cache_armv7.S kern/arm/cache.c kern/arm/compiler-rt.S lib/division.c disk/efi/efidisk.c kern/efi/efi.c kern/efi/init.c kern/efi/mm.c term/efi/console.c kern/acpi.c kern/efi/acpi.c kern/compiler-rt.c kern/mm.c kern/time.c kern/generic/millisleep.c kern/command.c kern/corecmd.c kern/device.c kern/disk.c kern/dl.c kern/env.c kern/err.c kern/file.c kern/fs.c kern/list.c kern/main.c kern/misc.c kern/parser.c kern/partition.c kern/rescue_parser.c kern/rescue_reader.c kern/term.c 
++kernel_exec_SOURCES += kern/arm/efi/init.c kern/efi/fdt.c kern/arm/dl.c kern/arm/dl_helper.c kern/arm/cache_armv6.S kern/arm/cache_armv7.S kern/arm/cache.c kern/arm/compiler-rt.S lib/division.c disk/efi/efidisk.c kern/efi/efi.c kern/efi/init.c kern/efi/mm.c term/efi/console.c kern/acpi.c kern/efi/acpi.c kern/compiler-rt.c kern/mm.c kern/time.c kern/generic/millisleep.c kern/command.c kern/corecmd.c kern/device.c kern/disk.c kern/dl.c kern/env.c kern/err.c kern/file.c kern/fs.c kern/list.c kern/main.c kern/misc.c kern/parser.c kern/partition.c kern/rescue_parser.c kern/rescue_reader.c kern/term.c 
+ nodist_kernel_exec_SOURCES  = symlist.c  ## platform nodist sources
+ kernel_exec_LDADD  = 
+ kernel_exec_CFLAGS  = $(AM_CFLAGS) $(CFLAGS_KERNEL) 
+diff --git a/grub-core/Makefile.in b/grub-core/Makefile.in
+index 63c389ed0..ac9a76d0a 100644
+--- a/grub-core/Makefile.in
++++ b/grub-core/Makefile.in
+@@ -32368,20 +32368,6 @@ kern/arm/efi/kernel_exec-init.obj: kern/arm/efi/init.c
+ @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+ @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(kernel_exec_CPPFLAGS) $(CPPFLAGS) $(kernel_exec_CFLAGS) $(CFLAGS) -c -o kern/arm/efi/kernel_exec-init.obj `if test -f 'kern/arm/efi/init.c'; then $(CYGPATH_W) 'kern/arm/efi/init.c'; else $(CYGPATH_W) '$(srcdir)/kern/arm/efi/init.c'; fi`
+ 
+-kern/arm/efi/kernel_exec-misc.o: kern/arm/efi/misc.c
+-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(kernel_exec_CPPFLAGS) $(CPPFLAGS) $(kernel_exec_CFLAGS) $(CFLAGS) -MT kern/arm/efi/kernel_exec-misc.o -MD -MP -MF kern/arm/efi/$(DEPDIR)/kernel_exec-misc.Tpo -c -o kern/arm/efi/kernel_exec-misc.o `test -f 'kern/arm/efi/misc.c' || echo '$(srcdir)/'`kern/arm/efi/misc.c
+-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) kern/arm/efi/$(DEPDIR)/kernel_exec-misc.Tpo kern/arm/efi/$(DEPDIR)/kernel_exec-misc.Po
+-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='kern/arm/efi/misc.c' object='kern/arm/efi/kernel_exec-misc.o' libtool=no @AMDEPBACKSLASH@
+-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(kernel_exec_CPPFLAGS) $(CPPFLAGS) $(kernel_exec_CFLAGS) $(CFLAGS) -c -o kern/arm/efi/kernel_exec-misc.o `test -f 'kern/arm/efi/misc.c' || echo '$(srcdir)/'`kern/arm/efi/misc.c
+-
+-kern/arm/efi/kernel_exec-misc.obj: kern/arm/efi/misc.c
+-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(kernel_exec_CPPFLAGS) $(CPPFLAGS) $(kernel_exec_CFLAGS) $(CFLAGS) -MT kern/arm/efi/kernel_exec-misc.obj -MD -MP -MF kern/arm/efi/$(DEPDIR)/kernel_exec-misc.Tpo -c -o kern/arm/efi/kernel_exec-misc.obj `if test -f 'kern/arm/efi/misc.c'; then $(CYGPATH_W) 'kern/arm/efi/misc.c'; else $(CYGPATH_W) '$(srcdir)/kern/arm/efi/misc.c'; fi`
+-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) kern/arm/efi/$(DEPDIR)/kernel_exec-misc.Tpo kern/arm/efi/$(DEPDIR)/kernel_exec-misc.Po
+-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='kern/arm/efi/misc.c' object='kern/arm/efi/kernel_exec-misc.obj' libtool=no @AMDEPBACKSLASH@
+-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(kernel_exec_CPPFLAGS) $(CPPFLAGS) $(kernel_exec_CFLAGS) $(CFLAGS) -c -o kern/arm/efi/kernel_exec-misc.obj `if test -f 'kern/arm/efi/misc.c'; then $(CYGPATH_W) 'kern/arm/efi/misc.c'; else $(CYGPATH_W) '$(srcdir)/kern/arm/efi/misc.c'; fi`
+-
+ kern/arm/kernel_exec-dl.o: kern/arm/dl.c
+ @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(kernel_exec_CPPFLAGS) $(CPPFLAGS) $(kernel_exec_CFLAGS) $(CFLAGS) -MT kern/arm/kernel_exec-dl.o -MD -MP -MF kern/arm/$(DEPDIR)/kernel_exec-dl.Tpo -c -o kern/arm/kernel_exec-dl.o `test -f 'kern/arm/dl.c' || echo '$(srcdir)/'`kern/arm/dl.c
+ @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) kern/arm/$(DEPDIR)/kernel_exec-dl.Tpo kern/arm/$(DEPDIR)/kernel_exec-dl.Po
+-- 
+2.18.1
+
