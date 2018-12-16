@@ -690,6 +690,14 @@ let
       # Bump the maximum number of CPUs to support systems like EC2 x1.*
       # instances and Xeon Phi.
       NR_CPUS = "384";
+    } // optionalAttrs (stdenv.hostPlatform.system == "armv7l-linux") {
+      # FIXME : optional as it won't boot on CPUS not supporting the LPA extension.
+      # https://cateee.net/lkddb/web-lkddb/ARM_LPAE.html
+      # Though it should be present???
+      # https://en.wikipedia.org/wiki/ARM_architecture#Large_Physical_Address_Extension_(LPAE)
+      # Hmm, ARMv7-A vs. -M and -R...
+      # Or not... only those starting 2011 maybe?
+      ARM_LPAE = yes;
     };
   };
 in (generateNixKConf ((flattenKConf options) // structuredExtraConfig) mkValueOverride) + extraConfig
