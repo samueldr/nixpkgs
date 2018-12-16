@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, fetchpatch, autoreconfHook, flex, bison, python
+{ stdenv, fetchurl, fetchpatch, fetchFromSavannah, fetchgit, autoreconfHook, flex, bison, python
 , gettext, ncurses, libusb, freetype, qemu, lvm2, unifont, pkgconfig
 , fuse # only needed for grub-mount
 , zfs ? null
@@ -44,10 +44,23 @@ assert !(efiSupport && xenSupport);
 stdenv.mkDerivation rec {
   name = "grub-${version}";
 
-  src = fetchurl {
-    url = "mirror://gnu/grub/${name}.tar.xz";
-    sha256 = "03vvdfhdmf16121v7xs8is2krwnv15wpkhkf16a4yf8nsfc3f2w1";
-  };
+  src = if stdenv.hostPlatform.isAarch32 then
+    fetchgit {
+    # WTH savannah is 502 bad gateway :/
+    # fetchFromSavannah {
+    #   repo = "grub";
+        #url = https://git.savannah.gnu.org/git/grub.git;
+        url = git://git.savannah.gnu.org/grub.git;
+        rev = "a791dc0e3501e2932321a257564a3f27a50673bf";
+        sha256 = "04ssz35fxnzpd3dr2i1c0x1w2nk06lwpvmgsrhwsw8fms3cx6y7m";
+    #   sha256 = "0000000000000000000000000000000000000000000000000000";
+    }
+  else
+    fetchurl {
+      url = "mirror://gnu/grub/${name}.tar.xz";
+      sha256 = "03vvdfhdmf16121v7xs8is2krwnv15wpkhkf16a4yf8nsfc3f2w1";
+    }
+  ;
 
   # It is required to `autoreconf` since the patch series change the build.
   nativeBuildInputs = [ autoreconfHook bison flex python pkgconfig ];
@@ -59,6 +72,11 @@ stdenv.mkDerivation rec {
 
   # Work around a bug in the generated flex lexer (upstream flex bug?)
   NIX_CFLAGS_COMPILE = "-Wno-error";
+
+  preAutoreconf = ''
+    patchShebangs autogen.sh
+    ./autogen.sh
+  '';
 
   preConfigure = ''
     for i in "tests/util/"*.in; do
@@ -93,10 +111,7 @@ stdenv.mkDerivation rec {
       url = https://git.savannah.gnu.org/cgit/grub.git/patch/?id=cda0a857dd7a27cd5d621747464bfe71e8727fff;
       sha256 = "0k9qrkdxwdqk6sz05q9smqwjr6pvgc9adx1mlf0807g4im91xnm0";
     })
-  ]
-    ++ map fetchurl (import ./grub2.patches.nix)
-    ++ [ ./0001-arm-Finishes-removing-refs-to-kern-arm-efi-misc.c.patch ]
-  ;
+  ];
 
   configureFlags = [ "--enable-grub-mount" ] # dep of os-prober
     ++ optional zfsSupport "--enable-libzfs"
