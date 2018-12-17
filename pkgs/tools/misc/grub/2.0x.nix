@@ -33,7 +33,7 @@ let
   canEfi = any (system: stdenv.hostPlatform.system == system) (mapAttrsToList (name: _: name) efiSystemsBuild);
   inPCSystems = any (system: stdenv.hostPlatform.system == system) (mapAttrsToList (name: _: name) pcSystems);
 
-  version = "2.02+dfsg1-9";
+  version = "2.02-git";
 
 in (
 
