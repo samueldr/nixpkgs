@@ -368,6 +368,8 @@ let
       "x64"
     else if pkgs.stdenv.isAarch64 then
       "aa64"
+    else if pkgs.stdenv.isAarch32 then
+      "arm"
     else
       throw "Unsupported architecture";
 
