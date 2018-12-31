@@ -17,8 +17,8 @@ let
       # https://github.com/pbatard/RaspberryPiPkg/projects/1
       owner = "pbatard";
       repo = "RaspberryPiPkg";
-      rev = "8be01f060dac38b6137f8abd3fff3cf4a00dcab6";
-      sha256 = "1w9763ycw0ix2kz8mr8ayfbj2imfskv04321bb08wg2f6ivdfz3s";
+      rev = "8f37304a4ecb044843960e0925e22286bfd01fe8";
+      sha256 = "1bvgn703i3wd6vjkvdzm3mxy3rlafqazljkzr0z2gpj91i981fy3";
     }} $out/Platform/Broadcom/Bcm283x
   '';
 
@@ -26,7 +26,7 @@ let
 
   crossCompiling = stdenv.buildPlatform != stdenv.hostPlatform;
 
-  version = "2018-12-19";
+  version = "2018-12-31";
 in
 stdenv.mkDerivation (edk2.setup projectDscPath {
   name = "tianocore-rpi3-${version}";
