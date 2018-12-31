@@ -72,6 +72,9 @@ edk2 = stdenv.mkDerivation {
     setup = projectDscPath: attrs: {
       buildInputs = stdenv.lib.optionals (attrs ? buildInputs) attrs.buildInputs;
 
+      nativeBuildInputs = [ buildPythonEnv ] ++
+        stdenv.lib.optionals (attrs ? nativeBuildInputs) attrs.nativeBuildInputs;
+
       depsBuildBuild = [ buildPackages.iasl buildPythonEnv ];
 
       configurePhase = ''
@@ -104,7 +107,7 @@ edk2 = stdenv.mkDerivation {
       ";
 
       installPhase = "mv -v Build/*/* $out";
-    } // (removeAttrs attrs [ "buildInputs" ] );
+    } // (removeAttrs attrs [ "buildInputs" "nativeBuildInputs" ] );
 
     srcs = {
       platforms = fetchFromGitHub {
