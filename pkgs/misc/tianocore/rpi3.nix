@@ -13,6 +13,8 @@ let
     mkdir -p "$out"
     mkdir -vp $out/Platform/Broadcom
     ln -vs ${fetchFromGitHub {
+      # This fork is working on getting the code upstreamable.
+      # https://github.com/pbatard/RaspberryPiPkg/projects/1
       owner = "pbatard";
       repo = "RaspberryPiPkg";
       rev = "8be01f060dac38b6137f8abd3fff3cf4a00dcab6";
@@ -22,12 +24,11 @@ let
 
   projectDscPath = "Platform/Broadcom/Bcm283x/RaspberryPiPkg.dsc";
 
-  inherit (edk2) src targetArch;
-
   crossCompiling = stdenv.buildPlatform != stdenv.hostPlatform;
-in
-stdenv.mkDerivation (edk2.setup projectDscPath rec {
+
   version = "2018-12-19";
+in
+stdenv.mkDerivation (edk2.setup projectDscPath {
   name = "tianocore-rpi3-${version}";
 
   nativeBuildInputs = [ findutils ];
@@ -51,19 +52,12 @@ stdenv.mkDerivation (edk2.setup projectDscPath rec {
     chmod +rw *
   '';
 
-  buildPhase = lib.optionalString crossCompiling ''
-    # This is required, even though it is set in target.txt in edk2/default.nix.
-    export EDK2_TOOLCHAIN=GCC49
+  dontPatchELF = true;
 
-    # Configures for cross-compiling
-    export ''${EDK2_TOOLCHAIN}_${targetArch}_PREFIX=${stdenv.targetPlatform.config}-
-    export EDK2_HOST_ARCH=${targetArch}
-    '' + ''
-    build \
-      -n $NIX_BUILD_CORES \
-      -a ${targetArch} \
-      ${lib.optionalString crossCompiling "-t $EDK2_TOOLCHAIN"}
-  '';
-
-  platforms = [ "none" ];
+  meta = {
+    description = "Tiano Core UEFI for the Raspberry Pi 3";
+    homepage = https://github.com/pbatard/RaspberryPiPkg;
+    license = stdenv.lib.licenses.bsd2;
+    platforms = ["aarch64-linux"];
+  };
 })

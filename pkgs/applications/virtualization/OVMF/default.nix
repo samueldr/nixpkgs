@@ -10,15 +10,9 @@ let
   else
     throw "Unsupported architecture";
 
-  crossCompiling = stdenv.buildPlatform != stdenv.hostPlatform;
-
   version = (builtins.parseDrvName edk2.name).version;
 
-  inherit (edk2) src targetArch;
-
-  buildFlags = if stdenv.isAarch64 then ""
-    else if seabios == null then ''${lib.optionalString secureBoot "-DSECURE_BOOT_ENABLE=TRUE"}''
-    else ''-D CSM_ENABLE -D FD_SIZE_2MB ${lib.optionalString secureBoot "-DSECURE_BOOT_ENABLE=TRUE"}'';
+  inherit (edk2) src;
 in
 
 stdenv.mkDerivation (edk2.setup projectDscPath {
@@ -63,21 +57,11 @@ stdenv.mkDerivation (edk2.setup projectDscPath {
     ''}
   '';
 
-  buildPhase = lib.optionalString crossCompiling ''
-    # This is required, even though it is set in target.txt in edk2/default.nix.
-    export EDK2_TOOLCHAIN=GCC49
+  buildFlags = if stdenv.isAarch64 then ""
+    else if seabios == null then ''${lib.optionalString secureBoot "-DSECURE_BOOT_ENABLE=TRUE"}''
+    else ''-D CSM_ENABLE -D FD_SIZE_2MB ${lib.optionalString secureBoot "-DSECURE_BOOT_ENABLE=TRUE"}'';
 
-    # Configures for cross-compiling
-    export ''${EDK2_TOOLCHAIN}_${targetArch}_PREFIX=${stdenv.targetPlatform.config}-
-    export EDK2_HOST_ARCH=${targetArch}
-    '' + ''
-    build \
-      -n $NIX_BUILD_CORES \
-      ${buildFlags} \
-      -a ${targetArch} \
-      ${lib.optionalString crossCompiling "-t $EDK2_TOOLCHAIN"}
-  '';
-
+  # Makes the `.fd` output.
   postFixup = if stdenv.isAarch64 || stdenv.isAarch32 then ''
     mkdir -vp $fd/FV
     mkdir -vp $fd/AAVMF

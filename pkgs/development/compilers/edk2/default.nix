@@ -1,6 +1,5 @@
 { stdenv, buildPackages, targetPlatform, buildPlatform, fetchFromGitHub, fetchpatch, libuuid, python2, findutils }:
 
-let pp = x: builtins.trace x x; in
 let
 # Given a stdenv, returns the edk2-valid arch.
 envToArch = env:
@@ -21,6 +20,8 @@ pythonEnv = python2.withPackages(ps: [ps.tkinter]);
 
 targetArch = envToArch targetPlatform;
 hostArch = envToArch buildPlatform;
+
+crossCompiling = stdenv.buildPlatform != stdenv.hostPlatform;
 
 edk2 = stdenv.mkDerivation {
   name = "edk2-2018-12-19";
@@ -75,8 +76,9 @@ edk2 = stdenv.mkDerivation {
       nativeBuildInputs = [ buildPythonEnv ] ++
         stdenv.lib.optionals (attrs ? nativeBuildInputs) attrs.nativeBuildInputs;
 
-      depsBuildBuild = [ buildPackages.iasl buildPythonEnv ];
+      depsBuildBuild = [ buildPackages.iasl ];
 
+      # Configures the build system among other options, to build the given `projectDscPath`
       configurePhase = ''
         mkdir -pv Conf
 
@@ -100,13 +102,26 @@ edk2 = stdenv.mkDerivation {
         . ${edk2}/edksetup.sh BaseTools
       '';
 
-      # This probably is not enough for most builds as it won't handle
-      # setting targets or other needed flags to the `build` tool.
-      buildPhase = "
-        build
-      ";
+      # Generic build phase with cross-compilation support.
+      # It will build whatever was configured using `projectDscPath`.
+      buildPhase = stdenv.lib.optionalString crossCompiling ''
+        # This is required, even though it is set in target.txt in edk2/default.nix.
+        export EDK2_TOOLCHAIN=GCC49
 
-      installPhase = "mv -v Build/*/* $out";
+        # Configures for cross-compiling
+        export ''${EDK2_TOOLCHAIN}_${targetArch}_PREFIX=${stdenv.targetPlatform.config}-
+        export EDK2_HOST_ARCH=${targetArch}
+        '' + ''
+        build \
+          -n $NIX_BUILD_CORES \
+          ${attrs.buildFlags or ""} \
+          -a ${targetArch} \
+          ${stdenv.lib.optionalString crossCompiling "-t $EDK2_TOOLCHAIN"}
+      '';
+
+      installPhase = ''
+        mv -v Build/*/* $out
+      '';
     } // (removeAttrs attrs [ "buildInputs" "nativeBuildInputs" ] );
 
     srcs = {
