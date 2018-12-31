@@ -31,14 +31,14 @@ stdenv.mkDerivation (edk2.setup projectDscPath {
   # TODO: properly include openssl for secureBoot
   buildInputs = [nasm iasl] ++ stdenv.lib.optionals (secureBoot == true) [ openssl ];
 
-  hardeningDisable = [ "stackprotector" "pic" "fortify" ];
+  hardeningDisable = [ "stackprotector" "pic" "fortify" "format" ];
 
   unpackPhase = ''
     # $fd is overwritten during the build
     export OUTPUT_FD=$fd
 
     for file in \
-      "${src}"/{UefiCpuPkg,MdeModulePkg,IntelFrameworkModulePkg,PcAtChipsetPkg,FatBinPkg,EdkShellBinPkg,MdePkg,ShellPkg,OptionRomPkg,IntelFrameworkPkg,FatPkg,CryptoPkg,SourceLevelDebugPkg};
+      "${src}"/{UefiCpuPkg,MdeModulePkg,IntelFrameworkModulePkg,PcAtChipsetPkg,FatBinPkg,EdkShellBinPkg,MdePkg,ShellPkg,OptionRomPkg,IntelFrameworkPkg,FatPkg,CryptoPkg,SourceLevelDebugPkg,NetworkPkg,SecurityPkg};
     do
       ln -sv "$file" .
     done

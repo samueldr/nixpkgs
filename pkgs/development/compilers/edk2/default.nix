@@ -22,22 +22,15 @@ targetArch = envToArch targetPlatform;
 hostArch = envToArch buildPlatform;
 
 edk2 = stdenv.mkDerivation {
-  name = "edk2-2017-12-05";
+  name = "edk2-2018-12-26";
 
   src = fetchFromGitHub {
+    fetchSubmodules = true;
     owner = "tianocore";
     repo = "edk2";
-    rev = "f71a70e7a4c93a6143d7bad8ab0220a947679697";
-    sha256 = "0k48xfwxcgcim1bhkggc19hilvsxsf5axvvcpmld0ng1fcfg0cr6";
+    rev = "2bb4a7ca6299298f84da4657576b140f178c7458";
+    sha256 = "19jc5h58kwi9l2k2izpsvr35hmjpqiz671y39sikk8b95rj1ycm5";
   };
-
-  patches = [
-    (fetchpatch {
-      name = "short-circuit-the-transfer-of-an-empty-S3_CONTEXT.patch";
-      url = "https://github.com/tianocore/edk2/commit/9e2a8e928995c3b1bb664b73fd59785055c6b5f6.diff";
-      sha256 = "0x24npijhgpjpsn3n74wayf8qcbaj97vi4z2iyf4almavqq8qaz4";
-    })
-  ];
 
   buildInputs = [ libuuid ];
 
