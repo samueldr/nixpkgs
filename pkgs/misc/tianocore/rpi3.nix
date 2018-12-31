@@ -31,6 +31,8 @@ in
 stdenv.mkDerivation (edk2.setup projectDscPath {
   name = "tianocore-rpi3-${version}";
 
+  outputs = [ "out" "fd" ];
+
   nativeBuildInputs = [ findutils ];
 
   # This acts as a big merge of all those "edk2 workspaces"
@@ -50,6 +52,12 @@ stdenv.mkDerivation (edk2.setup projectDscPath {
       )
     done
     chmod +rw *
+  '';
+
+  # Makes the `.fd` output.
+  postFixup = ''
+    mkdir -vp $fd/FV
+    mv -v $out/FV/RPI_EFI.fd $fd/FV
   '';
 
   dontPatchELF = true;
