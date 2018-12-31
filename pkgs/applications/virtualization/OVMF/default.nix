@@ -28,9 +28,6 @@ stdenv.mkDerivation (edk2.setup projectDscPath {
   hardeningDisable = [ "stackprotector" "pic" "fortify" "format" ];
 
   unpackPhase = ''
-    # $fd is overwritten during the build
-    export OUTPUT_FD=$fd
-
     for file in \
       "${src}"/{UefiCpuPkg,MdeModulePkg,IntelFrameworkModulePkg,PcAtChipsetPkg,FatBinPkg,EdkShellBinPkg,MdePkg,ShellPkg,OptionRomPkg,IntelFrameworkPkg,FatPkg,CryptoPkg,SourceLevelDebugPkg,NetworkPkg,SecurityPkg};
     do
@@ -73,8 +70,8 @@ stdenv.mkDerivation (edk2.setup projectDscPath {
     dd of=$fd/AAVMF/QEMU_EFI-pflash.raw       if=$fd/FV/QEMU_EFI.fd conv=notrunc
     dd of=$fd/AAVMF/vars-template-pflash.raw if=/dev/zero bs=1M    count=64
   '' else ''
-    mkdir -vp $OUTPUT_FD/FV
-    mv -v $out/FV/OVMF{,_CODE,_VARS}.fd $OUTPUT_FD/FV
+    mkdir -vp $fd/FV
+    mv -v $out/FV/OVMF{,_CODE,_VARS}.fd $fd/FV
   '';
 
   dontPatchELF = true;
