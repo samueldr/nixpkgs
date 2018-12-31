@@ -23,14 +23,18 @@ targetArch = envToArch targetPlatform;
 hostArch = envToArch buildPlatform;
 
 edk2 = stdenv.mkDerivation {
-  name = "edk2-2018-12-26";
+  name = "edk2-2018-12-19";
+  #name = "edk2-2018-12-26";
 
   src = fetchFromGitHub {
     fetchSubmodules = true;
     owner = "tianocore";
     repo = "edk2";
-    rev = "2bb4a7ca6299298f84da4657576b140f178c7458";
-    sha256 = "19jc5h58kwi9l2k2izpsvr35hmjpqiz671y39sikk8b95rj1ycm5";
+    # EEK they removed a package which was required by the raspberry pi firmware!
+    rev = "41203b9ab5d48e029f24e17e9a865e54b7e1643d";
+    sha256 = "1l7h9r06cz1g59ww8h7azm4ylqdha66h2bvcmf24jz9rkjzlc9hl";
+    #rev = "2bb4a7ca6299298f84da4657576b140f178c7458";
+    #sha256 = "19jc5h58kwi9l2k2izpsvr35hmjpqiz671y39sikk8b95rj1ycm5";
   };
 
   buildInputs = [ libuuid ];
