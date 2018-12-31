@@ -13860,6 +13860,10 @@ in
   OVMF-CSM = OVMF.override { openssl = null; };
   #WIP: OVMF-secureBoot = OVMF.override { seabios = null; secureBoot = true; };
 
+  tianocore = recurseIntoAttrs {
+    rpi3 = callPackage ../misc/tianocore/rpi3.nix {};
+  };
+
   seabios = callPackage ../applications/virtualization/seabios { };
 
   cbfstool = callPackage ../applications/virtualization/cbfstool { };

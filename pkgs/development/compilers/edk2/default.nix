@@ -1,5 +1,6 @@
-{ stdenv, buildPackages, targetPlatform, buildPlatform, fetchFromGitHub, fetchpatch, libuuid, python2 }:
+{ stdenv, buildPackages, targetPlatform, buildPlatform, fetchFromGitHub, fetchpatch, libuuid, python2, findutils }:
 
+let pp = x: builtins.trace x x; in
 let
 # Given a stdenv, returns the edk2-valid arch.
 envToArch = env:
@@ -66,13 +67,11 @@ edk2 = stdenv.mkDerivation {
     inherit targetArch hostArch;
     setup = projectDscPath: attrs: {
       buildInputs = stdenv.lib.optionals (attrs ? buildInputs) attrs.buildInputs;
-      nativeBuildInputs = [ buildPythonEnv ] ++
-        stdenv.lib.optionals (attrs ? nativeBuildInputs) attrs.nativeBuildInputs;
 
-      depsBuildBuild = [ buildPackages.iasl ];
+      depsBuildBuild = [ buildPackages.iasl buildPythonEnv ];
 
       configurePhase = ''
-        mkdir -v Conf
+        mkdir -pv Conf
 
         cp ${edk2}/BaseTools/Conf/target.template Conf/target.txt
         sed -i Conf/target.txt \
@@ -102,6 +101,23 @@ edk2 = stdenv.mkDerivation {
 
       installPhase = "mv -v Build/*/* $out";
     } // (removeAttrs attrs [ "buildInputs" ] );
+
+    srcs = {
+      platforms = fetchFromGitHub {
+        #fetchSubmodules = true;
+        owner = "tianocore";
+        repo = "edk2-platforms";
+        rev = "f685a57901c328b23c4f3ac7ddf472d897d5e360";
+        sha256 = "0i36vvf03g1wrpf1ir7i9z3m3mcp3panms548wnmhn8l0gvida7z";
+      };
+      non-osi = fetchFromGitHub {
+        #fetchSubmodules = true;
+        owner = "tianocore";
+        repo = "edk2-non-osi";
+        rev = "1e2ca640be54d7a4d5d804c4f33894d099432de3";
+        sha256 = "1i10gsv47cvsh0i4hh6rvawqkl1jp6d725rjfvkjz6nq3bypmc4n";
+      };
+    };
   };
 };
 
