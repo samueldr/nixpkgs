@@ -1,9 +1,5 @@
 { stdenv
-, findutils
-, lib
-, buildPackages
 , fetchFromGitHub
-, symlinkJoin
 , runCommand
 , edk2
 }:
@@ -31,28 +27,17 @@ in
 stdenv.mkDerivation (edk2.setup projectDscPath {
   name = "tianocore-rpi3-${version}";
 
+  src = RaspberryPiPkg_src;
+
   outputs = [ "out" "fd" ];
 
-  nativeBuildInputs = [ findutils ];
-
-  # This acts as a big merge of all those "edk2 workspaces"
-  # TODO : rework the generic edk2 build to work with un-merged workspaces.
-  unpackPhase = ''
-    for d in ${lib.concatStringsSep " " (builtins.map (d: "${d}") [
-      edk2.src
-      edk2
-      edk2.srcs.platforms
-      edk2.srcs.non-osi
-      RaspberryPiPkg_src
-    ])}; do
-      (cd "$d"
-      echo "Merging $d"
-      find -L   -type d -exec mkdir -p "$NIX_BUILD_TOP/{}" ';'
-      find -L ! -type d -exec cp -f '{}' "$NIX_BUILD_TOP/{}" ';'
-      )
-    done
-    chmod +rw *
-  '';
+  workspace = [
+    edk2.src
+    edk2
+    edk2.srcs.platforms
+    edk2.srcs.non-osi
+    RaspberryPiPkg_src
+  ];
 
   # Makes the `.fd` output.
   postFixup = ''

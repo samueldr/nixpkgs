@@ -1,4 +1,10 @@
-{ stdenv, lib, edk2, nasm, iasl, seabios, openssl, secureBoot ? false }:
+{ stdenv
+, edk2
+, nasm
+, seabios
+, openssl
+, secureBoot ? false
+}:
 
 let
   projectDscPath = if stdenv.isi686 then
@@ -20,43 +26,20 @@ stdenv.mkDerivation (edk2.setup projectDscPath {
 
   inherit src;
 
+  workspace = [
+    src
+  ];
+
   outputs = [ "out" "fd" ];
 
   # TODO: properly include openssl for secureBoot
-  buildInputs = [nasm iasl] ++ stdenv.lib.optionals (secureBoot == true) [ openssl ];
+  buildInputs = [ nasm ] ++ stdenv.lib.optionals (secureBoot == true) [ openssl ];
 
   hardeningDisable = [ "stackprotector" "pic" "fortify" "format" ];
 
-  unpackPhase = ''
-    for file in \
-      "${src}"/{UefiCpuPkg,MdeModulePkg,IntelFrameworkModulePkg,PcAtChipsetPkg,FatBinPkg,EdkShellBinPkg,MdePkg,ShellPkg,OptionRomPkg,IntelFrameworkPkg,FatPkg,CryptoPkg,SourceLevelDebugPkg,NetworkPkg,SecurityPkg};
-    do
-      ln -sv "$file" .
-    done
-
-    ${if stdenv.isAarch64 || stdenv.isAarch32 then ''
-      ln -sv ${src}/ArmPkg .
-      ln -sv ${src}/ArmPlatformPkg .
-      ln -sv ${src}/ArmVirtPkg .
-      ln -sv ${src}/EmbeddedPkg .
-      ln -sv ${src}/OvmfPkg .
-    '' else if seabios != null then ''
-        cp -r ${src}/OvmfPkg .
-        chmod +w OvmfPkg/Csm/Csm16
-        cp ${seabios}/Csm16.bin OvmfPkg/Csm/Csm16/Csm16.bin
-    '' else ''
-        ln -sv ${src}/OvmfPkg .
-    ''}
-
-    ${lib.optionalString secureBoot ''
-      ln -sv ${src}/SecurityPkg .
-      ln -sv ${src}/CryptoPkg .
-    ''}
-  '';
-
   buildFlags = if stdenv.isAarch64 then ""
-    else if seabios == null then ''${lib.optionalString secureBoot "-DSECURE_BOOT_ENABLE=TRUE"}''
-    else ''-D CSM_ENABLE -D FD_SIZE_2MB ${lib.optionalString secureBoot "-DSECURE_BOOT_ENABLE=TRUE"}'';
+    else if seabios == null then ''${stdenv.lib.optionalString secureBoot "-DSECURE_BOOT_ENABLE=TRUE"}''
+    else ''-D CSM_ENABLE -D FD_SIZE_2MB ${stdenv.lib.optionalString secureBoot "-DSECURE_BOOT_ENABLE=TRUE"}'';
 
   # Makes the `.fd` output.
   postFixup = if stdenv.isAarch64 || stdenv.isAarch32 then ''
