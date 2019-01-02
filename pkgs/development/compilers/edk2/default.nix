@@ -1,7 +1,7 @@
 { stdenv, buildPackages, targetPlatform, buildPlatform, fetchFromGitHub, fetchpatch, libuuid, python2, findutils }:
 
 let
-# Given a stdenv, returns the edk2-valid arch.
+# Given a platform, returns the edk2-valid arch.
 envToArch = env:
   if env.isi686 then
     "IA32"
@@ -20,8 +20,6 @@ pythonEnv = python2.withPackages(ps: [ps.tkinter]);
 
 targetArch = envToArch targetPlatform;
 hostArch = envToArch buildPlatform;
-
-crossCompiling = stdenv.buildPlatform != stdenv.hostPlatform;
 
 edk2 = stdenv.mkDerivation {
   name = "edk2-2018-12-26";
@@ -65,7 +63,7 @@ edk2 = stdenv.mkDerivation {
   };
 
   passthru = {
-    inherit targetArch hostArch;
+    inherit targetArch;
 
     # Generic edk2-based build.
     #
@@ -75,16 +73,12 @@ edk2 = stdenv.mkDerivation {
     # When using `edk2.setup`, please also consider adding `src` or `srcs` as
     # an attribute to your derivation pointing to the specific source, as a
     # convenience to the end-user.
-    setup = projectDscPath: attrs: {
-      buildInputs = stdenv.lib.optionals (attrs ? buildInputs) attrs.buildInputs;
 
-      nativeBuildInputs = [
-        buildPythonEnv
-        findutils
-      ] ++
-        stdenv.lib.optionals (attrs ? nativeBuildInputs) attrs.nativeBuildInputs;
+    setup = projectDscPath: attrs: rec {
+      hostArch = buildPackages.edk2.targetArch;
 
-      depsBuildBuild = [ buildPackages.iasl ];
+      buildInputs = [] ++ attrs.buildInputs or [];
+      nativeBuildInputs = [ buildPythonEnv buildPackages.iasl buildPackages.findutils ] ++ attrs.nativeBuildInputs or [];
 
       # Builds a pre-merged workspace instead of using PACKAGES_PATH.
       # This assumes everything `workspace` is something that can be put
@@ -139,7 +133,7 @@ edk2 = stdenv.mkDerivation {
         sed -i Conf/target.txt \
           -e 's|Nt32Pkg/Nt32Pkg.dsc|${projectDscPath}|' \
           -e 's|MYTOOLS|GCC49|' \
-          -e 's|IA32|${targetArch}|' \
+          -e 's|IA32|${hostArch}|' \
           -e 's|DEBUG|RELEASE|'\
 
         cp ${edk2}/BaseTools/Conf/tools_def.template Conf/tools_def.txt
@@ -157,22 +151,20 @@ edk2 = stdenv.mkDerivation {
         . ${edk2}/edksetup.sh BaseTools
       '';
 
-      # Generic build phase with cross-compilation support.
-      # It will build whatever was configured using `projectDscPath`.
-      buildPhase = stdenv.lib.optionalString crossCompiling ''
+      # Generic build phase. It will build whatever was configured using `projectDscPath`.
+      buildPhase = ''
         # This is required, even though it is set in target.txt in edk2/default.nix.
         export EDK2_TOOLCHAIN=GCC49
 
         # Configures for cross-compiling
-        export ''${EDK2_TOOLCHAIN}_${targetArch}_PREFIX=${stdenv.targetPlatform.config}-
-        export EDK2_HOST_ARCH=${targetArch}
-        '' + ''
-          NIX_BUILD_CORES=1
+        export ''${EDK2_TOOLCHAIN}_${hostArch}_PREFIX=${stdenv.targetPlatform.config}-
+        export EDK2_HOST_ARCH=${hostArch}
+
         build \
           -n $NIX_BUILD_CORES \
           ${attrs.buildFlags or ""} \
-          -a ${targetArch} \
-          ${stdenv.lib.optionalString crossCompiling "-t $EDK2_TOOLCHAIN"}
+          -a ${hostArch} \
+          -t $EDK2_TOOLCHAIN
       '';
 
       installPhase = ''
