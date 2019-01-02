@@ -155,7 +155,7 @@ edk2 = stdenv.mkDerivation {
 
         build \
           -n $NIX_BUILD_CORES \
-          ${attrs.buildFlags or ""} \
+          ${stdenv.lib.escapeShellArgs (attrs.buildFlags or [])} \
           -a ${hostArch} \
           -t $EDK2_TOOLCHAIN
       '';

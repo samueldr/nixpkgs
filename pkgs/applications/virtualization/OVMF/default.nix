@@ -40,9 +40,10 @@ stdenv.mkDerivation (edk2.setup projectDscPath {
 
   hardeningDisable = [ "stackprotector" "pic" "fortify" "format" ];
 
-  buildFlags = if stdenv.isAarch64 then ""
-    else if seabios == null then ''${stdenv.lib.optionalString secureBoot "-DSECURE_BOOT_ENABLE=TRUE"}''
-    else ''-D CSM_ENABLE -D FD_SIZE_2MB ${stdenv.lib.optionalString secureBoot "-DSECURE_BOOT_ENABLE=TRUE"}'';
+  buildFlags = []
+    ++ stdenv.lib.optionals (seabios != null) [ "-D" "CSM_ENABLE" "-D" "FD_SIZE_2MB" ]
+    ++ stdenv.lib.optionals secureBoot ["-DSECURE_BOOT_ENABLE=TRUE"]
+  ;
 
   # Makes the `.fd` output.
   postFixup = if stdenv.isAarch64 || stdenv.isAarch32 then ''
