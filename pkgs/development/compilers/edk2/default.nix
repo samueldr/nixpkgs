@@ -1,4 +1,4 @@
-{ stdenv, buildPackages, targetPlatform, buildPlatform, fetchFromGitHub, fetchpatch, libuuid, python2, findutils }:
+{ stdenv, buildPackages, targetPlatform, hostPlatform, fetchFromGitHub, fetchpatch, libuuid, python2, findutils }:
 
 let
 # Given a platform, returns the edk2-valid arch.
@@ -19,7 +19,7 @@ buildPythonEnv = buildPackages.python2.withPackages(ps: [ps.tkinter]);
 pythonEnv = python2.withPackages(ps: [ps.tkinter]);
 
 targetArch = envToArch targetPlatform;
-hostArch = envToArch buildPlatform;
+hostArch = envToArch hostPlatform;
 
 edk2 = stdenv.mkDerivation {
   name = "edk2-2018-12-26";
@@ -32,9 +32,9 @@ edk2 = stdenv.mkDerivation {
     sha256 = "19jc5h58kwi9l2k2izpsvr35hmjpqiz671y39sikk8b95rj1ycm5";
   };
 
-  buildInputs = [ libuuid ];
+  nativeBuildInputs = [ libuuid buildPythonEnv ];
 
-  depsBuildBuild = [ buildPackages.stdenv.cc buildPackages.libuuid buildPythonEnv ];
+  depsBuildBuild = [ buildPackages.stdenv.cc ];
 
   makeFlags = [
     "-C" "BaseTools"
@@ -77,8 +77,7 @@ edk2 = stdenv.mkDerivation {
     setup = projectDscPath: attrs: rec {
       hostArch = buildPackages.edk2.targetArch;
 
-      buildInputs = [] ++ attrs.buildInputs or [];
-      nativeBuildInputs = [ buildPythonEnv buildPackages.iasl buildPackages.findutils ] ++ attrs.nativeBuildInputs or [];
+      nativeBuildInputs = [ buildPythonEnv findutils ] ++ attrs.nativeBuildInputs or [];
 
       # Builds a pre-merged workspace instead of using PACKAGES_PATH.
       # This assumes everything `workspace` is something that can be put
@@ -132,15 +131,9 @@ edk2 = stdenv.mkDerivation {
         cp ${edk2}/BaseTools/Conf/target.template Conf/target.txt
         sed -i Conf/target.txt \
           -e 's|Nt32Pkg/Nt32Pkg.dsc|${projectDscPath}|' \
-          -e 's|MYTOOLS|GCC49|' \
-          -e 's|IA32|${hostArch}|' \
-          -e 's|DEBUG|RELEASE|'\
+          -e 's|DEBUG|RELEASE|'
 
         cp ${edk2}/BaseTools/Conf/tools_def.template Conf/tools_def.txt
-        sed -i Conf/tools_def.txt \
-          -e 's|DEFINE GCC48_IA32_PREFIX       = /usr/bin/|DEFINE GCC48_IA32_PREFIX       = ""|' \
-          -e 's|DEFINE GCC48_X64_PREFIX        = /usr/bin/|DEFINE GCC48_X64_PREFIX        = ""|' \
-          -e 's|DEFINE UNIX_IASL_BIN           = /usr/bin/iasl|DEFINE UNIX_IASL_BIN           = ${buildPackages.iasl}/bin/iasl|'
 
         export EFI_SOURCE="$PWD/EdkCompatibilityPkg"
         for package in BaseTools EdkCompatibilityPkg; do
@@ -170,7 +163,7 @@ edk2 = stdenv.mkDerivation {
       installPhase = ''
         mv -v Build/*/* $out
       '';
-    } // (removeAttrs attrs [ "buildInputs" "nativeBuildInputs" ] );
+    } // (removeAttrs attrs [ "nativeBuildInputs" ] );
 
     srcs = {
       platforms = fetchFromGitHub {

@@ -1,5 +1,6 @@
 { stdenv
 , edk2
+, iasl
 , nasm
 , seabios
 , openssl
@@ -33,7 +34,9 @@ stdenv.mkDerivation (edk2.setup projectDscPath {
   outputs = [ "out" "fd" ];
 
   # TODO: properly include openssl for secureBoot
-  buildInputs = [ nasm ] ++ stdenv.lib.optionals (secureBoot == true) [ openssl ];
+  buildInputs = [ ] ++ stdenv.lib.optionals (secureBoot == true) [ openssl ];
+
+  nativeBuildInputs = [ iasl nasm ];
 
   hardeningDisable = [ "stackprotector" "pic" "fortify" "format" ];
 

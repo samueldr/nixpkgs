@@ -1,6 +1,7 @@
 { stdenv
 , fetchFromGitHub
 , runCommand
+, iasl
 , edk2
 }:
 
@@ -30,6 +31,8 @@ stdenv.mkDerivation (edk2.setup projectDscPath {
   src = RaspberryPiPkg_src;
 
   outputs = [ "out" "fd" ];
+
+  nativeBuildInputs = [ iasl ];
 
   workspace = [
     edk2.src
