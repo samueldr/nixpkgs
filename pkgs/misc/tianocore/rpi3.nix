@@ -35,8 +35,6 @@ stdenv.mkDerivation (edk2.setup projectDscPath {
   nativeBuildInputs = [ iasl ];
 
   workspace = [
-    edk2.src
-    edk2
     edk2.srcs.platforms
     edk2.srcs.non-osi
     RaspberryPiPkg_src

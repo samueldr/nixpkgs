@@ -68,54 +68,39 @@ edk2 = stdenv.mkDerivation {
     # Generic edk2-based build.
     #
     # Pass a list of derivations as `workspace` which will be merged in the order
-    # given into a unified workspace directory.
+    # given into a unified workspace directory. EDK2 and the built EDK2 are already
+    # added to the workspace for you.
     #
     # When using `edk2.setup`, please also consider adding `src` or `srcs` as
     # an attribute to your derivation pointing to the specific source, as a
     # convenience to the end-user.
-
     setup = projectDscPath: attrs: rec {
       hostArch = buildPackages.edk2.targetArch;
 
+      workspace = [
+        edk2.src
+        edk2
+      ] ++ attrs.workspace or [];
+
       nativeBuildInputs = [ buildPythonEnv findutils ] ++ attrs.nativeBuildInputs or [];
 
-      # Builds a pre-merged workspace instead of using PACKAGES_PATH.
-      # This assumes everything `workspace` is something that can be put
-      # in PACKAGES_PATH, and creates a mixed-together representation of
-      # one workspace.
-      # TODO : Figure out a way to instead use PACKAGES_PATH.
-      # The issue here is that projectDscPath needs to be a WORKSPACE-relative
-      # path to the project being built, so it means that projects in PROJECTS_PATH
-      # have to have a user-controller name, and not a $hash-source name.
+      # FIXME : figure out a clean way to name package paths.
+      # Right now, we get 0000000000000000000000000000000-source for most
+      # packages; this is not nice to debug things. Ideally, a name should be
+      # given in addition to a path, but this makes the API messy :/.
       unpackPhase = ''
         runHook preUnpack
 
-        if [ -z "''${workspace:-}" ]; then
-            # shellcheck disable=SC2016
-            echo 'variable $workspace should point to the sources'
-            exit 1
-        fi
-
-        ## The folder names will be $hash-source, due to sources not having names.
-        ## A list of {name, src} attrset might be better in the end.
-        #PACKAGES_PATH=""
-        #for i in $workspace; do
-        #  cp -prf $i ./
-        #  if [[ "$PACKAGES_PATH" != "" ]]; then
-        #  PACKAGES_PATH+=":"
-        #  fi
-        #  PACKAGES_PATH+="$PWD/$(basename $i)"
-        #done
-
-        echo "Preparing merged workspace..."
-        # TODO : short-circuit one-long list to be a simple copy.
-        for d in ${stdenv.lib.concatStringsSep " " (builtins.map (d: "${d}") attrs.workspace or [])}; do
-          (cd "$d"
-          echo "Merging $d"
-          find -L   -type d -exec mkdir -p "$NIX_BUILD_TOP/{}" ';'
-          find -L ! -type d -exec cp -f '{}' "$NIX_BUILD_TOP/{}" ';'
-          )
+        export PACKAGES_PATH=""
+        for i in ${stdenv.lib.concatStringsSep " " workspace}; do
+          echo "Adding to workspace: $(basename $i)"
+          cp -prf $i ./
+          if [[ "$PACKAGES_PATH" != "" ]]; then
+          PACKAGES_PATH+=":"
+          fi
+          PACKAGES_PATH+="$PWD/$(basename $i)"
         done
+
         # Makes the whole workspace writable
         chmod -R u+rw -- *
 
@@ -130,21 +115,17 @@ edk2 = stdenv.mkDerivation {
 
         cp ${edk2}/BaseTools/Conf/target.template Conf/target.txt
         sed -i Conf/target.txt \
-          -e 's|Nt32Pkg/Nt32Pkg.dsc|${projectDscPath}|' \
           -e 's|DEBUG|RELEASE|'
 
-        cp ${edk2}/BaseTools/Conf/tools_def.template Conf/tools_def.txt
+        ln -sv ${edk2}/BaseTools BaseTools
 
-        export EFI_SOURCE="$PWD/EdkCompatibilityPkg"
-        for package in BaseTools EdkCompatibilityPkg; do
-          rm -r "$package"
-          ln -sv "${edk2}/$package" "$package"
-        done
-
-        . ${edk2}/edksetup.sh BaseTools
+        . $(basename ${edk2})/edksetup.sh BaseTools
       '';
 
       # Generic build phase. It will build whatever was configured using `projectDscPath`.
+      # FIXME : -p */${projectDscPath} might fail when multiple projects
+      #         in the workspace define the same project path.
+      # FIXME: instead use ${workspace} order and stop on first found
       buildPhase = ''
         # This is required, even though it is set in target.txt in edk2/default.nix.
         export EDK2_TOOLCHAIN=GCC49
@@ -157,7 +138,8 @@ edk2 = stdenv.mkDerivation {
           -n $NIX_BUILD_CORES \
           ${stdenv.lib.escapeShellArgs (attrs.buildFlags or [])} \
           -a ${hostArch} \
-          -t $EDK2_TOOLCHAIN
+          -t $EDK2_TOOLCHAIN \
+          -p */${projectDscPath}
       '';
 
       installPhase = ''

@@ -27,10 +27,6 @@ stdenv.mkDerivation (edk2.setup projectDscPath {
 
   inherit src;
 
-  workspace = [
-    src
-  ];
-
   outputs = [ "out" "fd" ];
 
   # TODO: properly include openssl for secureBoot
