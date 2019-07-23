@@ -39,6 +39,9 @@ in
         [pi3]
         kernel=u-boot-rpi3.bin
 
+        [pi4]
+        kernel=u-boot-rpi4.bin
+
         [all]
         # Boot in 64-bit mode.
         arm_control=0x200
@@ -54,6 +57,7 @@ in
       in ''
         (cd ${pkgs.raspberrypifw}/share/raspberrypi/boot && cp bootcode.bin fixup*.dat start*.elf $NIX_BUILD_TOP/firmware/)
         cp ${pkgs.ubootRaspberryPi3_64bit}/u-boot.bin firmware/u-boot-rpi3.bin
+        cp ${pkgs.ubootRaspberryPi4_64bit}/u-boot.bin firmware/u-boot-rpi4.bin
         cp ${configTxt} firmware/config.txt
       '';
     populateRootCommands = ''
