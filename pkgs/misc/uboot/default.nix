@@ -1,6 +1,7 @@
 { stdenv, lib, fetchurl, fetchpatch, bc, bison, dtc, flex, openssl, swig
 , armTrustedFirmwareAllwinner
 , buildPackages
+, fetchFromGitHub # TEMP
 }:
 
 let
@@ -241,6 +242,18 @@ in rec {
 
   ubootRaspberryPi3_64bit = buildUBoot rec {
     defconfig = "rpi_3_defconfig";
+    extraMeta.platforms = ["aarch64-linux"];
+    filesToInstall = ["u-boot.bin"];
+  };
+
+  ubootRaspberryPi4_64bit = buildUBoot rec {
+    src = fetchFromGitHub {
+      owner = "agherzan";
+      repo = "u-boot";
+      rev = "62b6e39a53c56a9085aeab1b47b5cc6020fcdb6f";
+      sha256 = "1cy58h9ljqw7yhv18n11c13pp70r98ldjbnsafmapc9mfn3gzhpa";
+    };
+    defconfig = "rpi_4_defconfig";
     extraMeta.platforms = ["aarch64-linux"];
     filesToInstall = ["u-boot.bin"];
   };
