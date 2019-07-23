@@ -64,5 +64,6 @@ in
       mkdir -p ./files/boot
       ${extlinux-conf-builder} -t 3 -c ${config.system.build.toplevel} -d ./files/boot
     '';
+    firmwareSize = 32;
   };
 }
