@@ -36,8 +36,10 @@ in
   sdImage = {
     populateFirmwareCommands = let
       configTxt = pkgs.writeText "config.txt" ''
+        [pi3]
         kernel=u-boot-rpi3.bin
 
+        [all]
         # Boot in 64-bit mode.
         arm_control=0x200
 
