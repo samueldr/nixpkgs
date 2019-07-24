@@ -38,17 +38,19 @@ in
       configTxt = pkgs.writeText "config.txt" ''
         [pi3]
         kernel=u-boot-rpi3.bin
+        # Boot in 64-bit mode.
+        arm_control=0x200
 
         [pi4]
+        # https://andrei.gherzan.ro/linux/raspbian-rpi4-64/
+        boardflags3=0x44200100
         kernel=u-boot-rpi4.bin
         total_mem=1024
         enable_gic=1
         armstub=armstub8-gic.bin
+        arm_64bit=1
 
         [all]
-        # Boot in 64-bit mode.
-        arm_control=0x200
-        arm_64bit=1
 
         # U-Boot used to need this to work, regardless of whether UART is actually used or not.
         # Documented as required for u-boot on Raspberry Pi 4.
@@ -62,6 +64,7 @@ in
         (cd ${pkgs.raspberrypifw}/share/raspberrypi/boot && cp bootcode.bin fixup*.dat start*.elf $NIX_BUILD_TOP/firmware/)
         cp ${pkgs.ubootRaspberryPi3_64bit}/u-boot.bin firmware/u-boot-rpi3.bin
         cp ${pkgs.ubootRaspberryPi4_64bit}/u-boot.bin firmware/u-boot-rpi4.bin
+        cp ${pkgs.raspberrypi-armstub}/armstub8.bin firmware/armstub8.bin
         cp ${pkgs.raspberrypi-armstub}/armstub8-gic.bin firmware/armstub8-gic.bin
         cp ${configTxt} firmware/config.txt
       '';
