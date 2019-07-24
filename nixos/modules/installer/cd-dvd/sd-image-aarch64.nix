@@ -41,6 +41,9 @@ in
 
         [pi4]
         kernel=u-boot-rpi4.bin
+        total_mem=1024
+        enable_gic=1
+        armstub=armstub8-gic.bin
 
         [all]
         # Boot in 64-bit mode.
@@ -59,6 +62,7 @@ in
         (cd ${pkgs.raspberrypifw}/share/raspberrypi/boot && cp bootcode.bin fixup*.dat start*.elf $NIX_BUILD_TOP/firmware/)
         cp ${pkgs.ubootRaspberryPi3_64bit}/u-boot.bin firmware/u-boot-rpi3.bin
         cp ${pkgs.ubootRaspberryPi4_64bit}/u-boot.bin firmware/u-boot-rpi4.bin
+        cp ${pkgs.raspberrypi-armstub}/armstub8-gic.bin firmware/armstub8-gic.bin
         cp ${configTxt} firmware/config.txt
       '';
     populateRootCommands = ''
