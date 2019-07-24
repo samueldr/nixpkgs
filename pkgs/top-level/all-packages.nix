@@ -15990,6 +15990,7 @@ in
   raspberrypiWirelessFirmware = callPackage ../os-specific/linux/firmware/raspberrypi-wireless { };
 
   raspberrypi-tools = callPackage ../os-specific/linux/firmware/raspberrypi/tools.nix {};
+  raspberrypi-armstub = callPackage ../os-specific/linux/firmware/raspberrypi/armstub.nix {};
 
   regionset = callPackage ../os-specific/linux/regionset { };
 
