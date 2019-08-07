@@ -33,10 +33,12 @@ in stdenv.mkDerivation rec {
     valgrind gcab docbook_xml_dtd_43 docbook_xsl help2man libxslt python wrapGAppsHook vala
   ];
   buildInputs = [
-    polkit libxmlb gusb sqlite libarchive libsoup elfutils libsmbios gnu-efi libyaml
+    polkit libxmlb gusb sqlite libarchive libsoup elfutils gnu-efi libyaml
     libgudev colord gpgme libuuid gnutls glib-networking efivar json-glib umockdev
     bash-completion cairo freetype fontconfig pango
-  ];
+  ]
+  ++ stdenv.lib.optional (stdenv.isx86_64 || stdenv.isi686) libsmbios
+  ;
 
   patches = [
     ./fix-paths.patch
