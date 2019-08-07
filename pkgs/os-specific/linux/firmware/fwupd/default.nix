@@ -17,6 +17,9 @@ let
   fontsConf = makeFontsConf {
     fontDirectories = [ freefont_ttf ];
   };
+
+  inherit (stdenv.lib) optional;
+  isx86 = stdenv.isx86_64 || stdenv.isi686;
 in stdenv.mkDerivation rec {
   pname = "fwupd";
   version = "1.2.8";
@@ -37,7 +40,7 @@ in stdenv.mkDerivation rec {
     libgudev colord gpgme libuuid gnutls glib-networking efivar json-glib umockdev
     bash-completion cairo freetype fontconfig pango
   ]
-  ++ stdenv.lib.optional (stdenv.isx86_64 || stdenv.isi686) libsmbios
+  ++ optional isx86 libsmbios
   ;
 
   patches = [
@@ -73,11 +76,14 @@ in stdenv.mkDerivation rec {
   # /etc/os-release not available in sandbox
   # doCheck = true;
 
-  preFixup = ''
+  preFixup = let
+    binPath = [ efibootmgr bubblewrap tpm2-tools ] ++ optional isx86 flashrom;
+  in
+  ''
     gappsWrapperArgs+=(
       --prefix XDG_DATA_DIRS : "${shared-mime-info}/share"
       # See programs reached with fu_common_find_program_in_path in source
-      --prefix PATH : "${stdenv.lib.makeBinPath [ flashrom efibootmgr bubblewrap tpm2-tools ]}"
+      --prefix PATH : "${stdenv.lib.makeBinPath binPath}"
     )
   '';
 
