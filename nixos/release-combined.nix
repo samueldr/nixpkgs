@@ -26,6 +26,14 @@ let
   })) [ "unstable" ];
 
 in rec {
+  _manifest = pkgs.writeText "release-manifest-${nixos.channel.version}" (builtins.toJSON {
+    # Hydra job name → optional file name
+    "nixos.channel" = "nixexprs.tar.xz";
+    "nixos.iso_minimal.x86_64-linux" = null;
+    "nixos.iso_minimal.i686-linux" = null;
+    "nixos.iso_graphical.x86_64-linux" = null;
+    "nixos.ova.x86_64-linux" = null;
+  });
 
   nixos = removeMaintainers (import ./release.nix {
     inherit stableBranch;

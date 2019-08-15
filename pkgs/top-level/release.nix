@@ -28,7 +28,12 @@ let
   supportDarwin = builtins.elem "x86_64-darwin" systemsWithAnySupport;
 
   jobs =
-    { tarball = import ./make-tarball.nix { inherit pkgs nixpkgs officialRelease; };
+    { _manifest = pkgs.writeText "release-manifest-${jobs.tarball.version}" (builtins.toJSON {
+        # Hydra job name → optional file name
+        "tarball" = "nixexprs.tar.xz";
+      });
+
+      tarball = import ./make-tarball.nix { inherit pkgs nixpkgs officialRelease; };
 
       metrics = import ./metrics.nix { inherit pkgs nixpkgs; };
 

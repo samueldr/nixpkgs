@@ -26,6 +26,11 @@ let
   }) [ "unstable" ];
 
 in rec {
+  _manifest = pkgs.writeText "release-manifest-${nixos.channel.version}" (builtins.toJSON {
+    # Hydra job name → optional file name
+    "nixos.channel" = "nixexprs.tar.xz";
+    "nixos.iso_minimal.x86_64-linux" = null;
+  });
 
   nixos = {
     inherit (nixos') channel manual iso_minimal dummy;
