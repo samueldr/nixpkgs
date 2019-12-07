@@ -724,6 +724,14 @@ let
     } // optionalAttrs (stdenv.hostPlatform.system == "aarch64-linux") {
       # Enables support for the Allwinner Display Engine 2.0
       SUN8I_DE2_CCU = whenAtLeast "4.13" yes;
+    } // optionalAttrs (stdenv.hostPlatform.system == "armv7l-linux") {
+      # FIXME : optional as it won't boot on CPUS not supporting the LPA extension.
+      # https://cateee.net/lkddb/web-lkddb/ARM_LPAE.html
+      # Though it should be present???
+      # https://en.wikipedia.org/wiki/ARM_architecture#Large_Physical_Address_Extension_(LPAE)
+      # Hmm, ARMv7-A vs. -M and -R...
+      # Or not... only those starting 2011 maybe?
+      ARM_LPAE = yes;
     };
   };
 in
