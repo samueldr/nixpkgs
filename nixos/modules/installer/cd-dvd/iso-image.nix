@@ -7,6 +7,7 @@
 with lib;
 
 let
+  inherit (pkgs) buildPackages;
   /**
    * Given a list of `options`, concats the result of mapping each options
    * to a menuentry for use in grub.
@@ -251,9 +252,15 @@ let
 
     # Make our own efi program, we can't rely on "grub-install" since it seems to
     # probe for devices, even with --skip-fs-probe.
-    ${grubPkgs.grub2_efi}/bin/grub-mkimage -o $out/EFI/boot/boot${targetArch}.efi -p /EFI/boot -O ${grubPkgs.grub2_efi.grubTarget} \
+    ${buildPackages.grub2_efi}/bin/grub-mkimage \
+      -o $out/EFI/boot/boot${targetArch}.efi \
+      -d ${grubPkgs.grub2_efi}/lib/grub/${grubPkgs.grub2_efi.grubTarget} \
+      -p /EFI/boot \
+      -O ${grubPkgs.grub2_efi.grubTarget} \
       $MODULES
-    cp ${grubPkgs.grub2_efi}/share/grub/unicode.pf2 $out/EFI/boot/
+    # When cross-compiling, the final GRUB package will not compile the font.
+    # (See grub/2.0x.nix)
+    cp -v ${buildPackages.grub2_efi}/share/grub/unicode.pf2 $out/EFI/boot/
 
     cat <<EOF > $out/EFI/boot/grub.cfg
 
@@ -336,7 +343,7 @@ let
     ${refind}
   '';
 
-  efiImg = pkgs.runCommand "efi-image_eltorito" { buildInputs = [ pkgs.mtools pkgs.libfaketime ]; }
+  efiImg = pkgs.runCommand "efi-image_eltorito" { nativeBuildInputs = with pkgs.buildPackages; [ dosfstools mtools libfaketime ]; }
     # Be careful about determinism: du --apparent-size,
     #   dates (cp -p, touch, mcopy -m, faketime for label), IDs (mkfs.vfat -i)
     ''
@@ -356,10 +363,10 @@ let
       echo "Usage size: $usage_size"
       echo "Image size: $image_size"
       truncate --size=$image_size "$out"
-      ${pkgs.libfaketime}/bin/faketime "2000-01-01 00:00:00" ${pkgs.dosfstools}/sbin/mkfs.vfat -i 12345678 -n EFIBOOT "$out"
+      faketime "2000-01-01 00:00:00" mkfs.vfat -i 12345678 -n EFIBOOT "$out"
       mcopy -psvm -i "$out" ./EFI ./boot ::
       # Verify the FAT partition.
-      ${pkgs.dosfstools}/sbin/fsck.vfat -vn "$out"
+      fsck.vfat -vn "$out"
     ''; # */
 
   # Name used by UEFI for architectures.

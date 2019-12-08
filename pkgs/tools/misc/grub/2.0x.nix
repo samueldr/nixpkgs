@@ -74,6 +74,7 @@ stdenv.mkDerivation rec {
   # To build tools that are ran at build-time.
   BUILD_CC="${buildPackages.stdenv.cc}/bin/cc";
 
+  # FIXME: Handle grub-mkfont to build the font when cross-compiling
   preConfigure =
     '' for i in "tests/util/"*.in
        do
