@@ -1,4 +1,4 @@
-{ stdenv, fetchgit, flex, bison, python, autoconf, automake, gnulib, libtool
+{ stdenv, buildPackages, fetchgit, flex, bison, python, autoconf, automake, gnulib, libtool
 , gettext, ncurses, libusb, freetype, qemu, lvm2, unifont, pkgconfig
 , fuse # only needed for grub-mount
 , zfs ? null
@@ -33,6 +33,7 @@ let
 
   version = "2.04";
 
+  inherit (stdenv.cc) targetPrefix;
 in (
 
 assert efiSupport -> canEfi;
@@ -53,7 +54,7 @@ stdenv.mkDerivation rec {
     ./fix-bash-completion.patch
   ];
 
-  nativeBuildInputs = [ bison flex python pkgconfig autoconf automake ];
+  nativeBuildInputs = [ bison flex python pkgconfig autoconf automake gettext ];
   buildInputs = [ ncurses libusb freetype gettext lvm2 fuse libtool ]
     ++ optional doCheck qemu
     ++ optional zfsSupport zfs;
@@ -62,6 +63,14 @@ stdenv.mkDerivation rec {
 
   # Work around a bug in the generated flex lexer (upstream flex bug?)
   NIX_CFLAGS_COMPILE = "-Wno-error";
+
+  # GRUB Needs those to be set explicitly for cross-compiling...
+  TARGET_CC="${targetPrefix}cc";
+  TARGET_NM="${targetPrefix}nm";
+  TARGET_OBJCOPY="${targetPrefix}objcopy";
+  TARGET_STRIP="${targetPrefix}strip";
+  # To build tools that are ran at build-time.
+  BUILD_CC="${buildPackages.stdenv.cc}/bin/cc";
 
   preConfigure =
     '' for i in "tests/util/"*.in
