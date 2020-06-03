@@ -7,6 +7,14 @@
 
   boot.kernelPackages = pkgs.linuxPackages_rpi4;
 
+  boot.consoleLogLevel = lib.mkDefault 7;
+
+  boot.kernelParams = [
+    "earlyprintk"
+    "console=ttyAMA0"
+    #"console=ttyS0,115200"
+  ];
+
   sdImage = {
     # Reserve far more space still, just in case.
     firmwareSize = 128;
