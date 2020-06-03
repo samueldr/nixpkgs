@@ -141,7 +141,7 @@ in stdenv.mkDerivation {
     "-Dsystem-gid-max=999"
     # "-Dtime-epoch=1"
 
-    (if !stdenv.hostPlatform.isEfi then "-Dgnu-efi=false" else "-Dgnu-efi=true")
+    (if true then "-Dgnu-efi=false" else "-Dgnu-efi=true")
     "-Defi-libdir=${toString gnu-efi}/lib"
     "-Defi-includedir=${toString gnu-efi}/include/efi"
     "-Defi-ldsdir=${toString gnu-efi}/lib"
