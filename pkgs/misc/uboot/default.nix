@@ -18,10 +18,10 @@
 }:
 
 let
-  defaultVersion = "2020.04";
+  defaultVersion = "2020.07-rc3";
   defaultSrc = fetchurl {
     url = "ftp://ftp.denx.de/pub/u-boot/u-boot-${defaultVersion}.tar.bz2";
-    sha256 = "0wjkasnz87q86hx93inspdjfjsinmxi87bcvj30c773x0fpjlwzy";
+    sha256 = "0k5vwfqs82lbia5kajyqd6gcz4sgn0ahw7lp8pq0mbj27193w1qx";
   };
   buildUBoot = {
     version ? null
