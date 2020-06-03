@@ -1,8 +1,8 @@
 { stdenv, lib, buildPackages, fetchFromGitHub, perl, buildLinux, rpiVersion, ... } @ args:
 
 let
-  modDirVersion = "4.19.75";
-  tag = "1.20190925";
+  modDirVersion = "5.4.42";
+  tag = "1.20200527";
 in
 lib.overrideDerivation (buildLinux (args // {
   version = "${modDirVersion}-${tag}";
@@ -12,7 +12,7 @@ lib.overrideDerivation (buildLinux (args // {
     owner = "raspberrypi";
     repo = "linux";
     rev = "raspberrypi-kernel_${tag}-1";
-    sha256 = "0l91kb4jjxg4fcp7d2aqm1fj34ns137rys93k907mdgnarcliafs";
+    sha256 = "07zlzhz4v9vlq2p7b7lgphmkf9vch5nm627rvmccsy8qjaxpypmd";
   };
 
   defconfig = {
@@ -33,6 +33,13 @@ lib.overrideDerivation (buildLinux (args // {
     platforms = with lib.platforms; [ arm aarch64 ];
     hydraPlatforms = [ "aarch64-linux" ];
   };
+
+  #NIX_CFLAGS_COMPILE="-Wno-unused-function";
+
+  extraConfig = ''
+    # ../drivers/pci/controller/pcie-altera.c:679:8: error: too few arguments to function 'devm_of_pci_get_host_bridge_resources'
+    PCIE_ALTERA n
+  '';
 } // (args.argsOverride or {}))) (oldAttrs: {
   postConfigure = ''
     # The v7 defconfig has this set to '-v7' which screws up our modDirVersion.
