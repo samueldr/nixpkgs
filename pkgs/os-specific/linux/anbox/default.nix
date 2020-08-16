@@ -5,6 +5,7 @@
 , libcap
 , systemd
 , mesa
+, glm
 , libGL
 , libglvnd
 , glib
@@ -45,13 +46,13 @@ in
 
 stdenv.mkDerivation rec {
   pname = "anbox";
-  version = "unstable-2019-11-15";
+  version = "unstable-2020-07-29";
 
   src = fetchFromGitHub {
     owner = pname;
     repo = pname;
-    rev = "0a49ae08f76de7f886a3dbed4422711c2fa39d10";
-    sha256 = "09l56nv9cnyhykclfmvam6bkcxlamwbql6nrz9n022553w92hkjf";
+    rev = "4d84370b73852e5ca755a28d0304c4d7d0aa589c";
+    sha256 = "0b1krca0230za9lif2djis5bv0y4318q9c6zwy7zlb952ijvjm29";
   };
 
   nativeBuildInputs = [
@@ -61,10 +62,13 @@ stdenv.mkDerivation rec {
   buildInputs = [
     cmake pkgconfig dbus boost libcap gtest systemd mesa glib
     SDL2 SDL2_image protobuf protobufc properties-cpp lxc python
-    libGL
+    glm libGL
   ];
 
-  NIX_CFLAGS_COMPILE = "-Wno-error=missing-field-initializers";
+  NIX_CFLAGS_COMPILE = [
+    "-Wno-error=missing-field-initializers"
+    "-Wno-error=pedantic" # Required for aarch64 build
+  ];
 
   patchPhase = ''
     patchShebangs scripts
