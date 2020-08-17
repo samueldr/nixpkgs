@@ -110,9 +110,11 @@ stdenv.mkDerivation rec {
     mkdir $out/libexec
     makeWrapper $out/bin/anbox $out/libexec/anbox-session-manager \
       --add-flags session-manager
+    chmod +x $out/libexec/anbox-session-manager
 
     substitute ${anbox-application-manager} $out/bin/anbox-application-manager \
       --subst-var out
+    chmod +x $out/bin/anbox-application-manager
   '';
 
   passthru.image = let
