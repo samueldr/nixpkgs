@@ -312,9 +312,6 @@ in
         ++ lib.optional (cfg.phononBackend == "gstreamer") libsForQt5.phonon-backend-gstreamer
         ++ lib.optional (cfg.phononBackend == "vlc") libsForQt5.phonon-backend-vlc
 
-        # Plasma mobile
-        ++ lib.optional cfg.mobile.enable plasma-phone-components
-
         # Optional hardware support features
         ++ lib.optionals config.hardware.bluetooth.enable [ bluedevil bluez-qt pkgs.openobex pkgs.obexftp ]
         ++ lib.optional config.networking.networkmanager.enable plasma-nm
@@ -377,6 +374,39 @@ in
       services.xserver.displayManager.setupCommands = startplasma;
 
       nixpkgs.config.firefox.enablePlasmaBrowserIntegration = true;
+    })
+    (mkIf cfg.mobile.enable {
+      environment.systemPackages =
+        with libsForQt5;
+        with plasma5; with kdeApplications; with kdeFrameworks;
+        [
+          plasma-phone-components
+          plasma-nano
+        ];
+
+      # The following services are needed or the UI is broken.
+      hardware.bluetooth.enable = true;
+      hardware.pulseaudio.enable = true;
+      networking.networkmanager.enable = true;
+      # FIXME: add asserts for:
+      #    - networkmanager presence (breaks the top panel)
+      #    - bluetooth presence (breaks the top panel)
+      #    - pulseaudio presence (breaks the top panel)
+      #
+
+      # To check what s missing:
+      # journalctl --user | grep -i 'is not installed'
+      #
+      # Missing, but does not cause ill effect:
+      #   - Whatever provides MeeGo.QOfono
+
+      environment.etc =
+        with libsForQt5;
+        with plasma5; with kdeApplications; with kdeFrameworks;
+      {
+        "xdg/kwinrc".source = "${plasma-phone-settings}/etc/xdg/kwinrc";
+        "xdg/kdeglobals".source = "${plasma-phone-settings}/etc/xdg/kdeglobals";
+      };
     })
   ];
 
