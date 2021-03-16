@@ -60,6 +60,7 @@ let
         inherit mkDerivation;
       };
     in {
+      kalk = callPackage ./kalk.nix {};
     };
 
 in lib.makeScope libsForQt5.newScope packages
