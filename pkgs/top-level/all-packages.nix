@@ -13444,6 +13444,8 @@ in
 
   kcc = libsForQt5.callPackage ../applications/graphics/kcc { };
 
+  kclock = libsForQt5.callPackage ../tools/misc/kclock { };
+
   kconfig-frontends = callPackage ../development/tools/misc/kconfig-frontends {
     gperf = gperf_3_0;
   };
