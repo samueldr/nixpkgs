@@ -61,6 +61,7 @@ let
       };
     in {
       kalk = callPackage ./kalk.nix {};
+      kclock = callPackage ./kclock.nix {};
     };
 
 in lib.makeScope libsForQt5.newScope packages
