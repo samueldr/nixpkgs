@@ -176,6 +176,15 @@ in
           Enable support for running the Plasma Mobile shell.
         '';
       };
+
+      mobile.installRecommendedSoftware = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          Installs software recommended for use with Plasma Mobile, but which
+          is not strictly required for Plasma Mobile to run.
+        '';
+      };
     };
   };
 
@@ -380,9 +389,15 @@ in
         with libsForQt5;
         with plasma5; with kdeApplications; with kdeFrameworks;
         [
+          # Basic packages without which Plasma Mobile fails to work properly.
           plasma-phone-components
           plasma-nano
-        ];
+        ]
+        ++ lib.optionals (cfg.mobile.installRecommendedSoftware) [
+          # Additional software made for Plasma Mobile.
+          pkgs.angelfish
+        ]
+      ;
 
       # The following services are needed or the UI is broken.
       hardware.bluetooth.enable = true;
@@ -400,13 +415,15 @@ in
       # Missing, but does not cause ill effect:
       #   - Whatever provides MeeGo.QOfono
 
-      environment.etc =
-        with libsForQt5;
-        with plasma5; with kdeApplications; with kdeFrameworks;
-      {
-        "xdg/kwinrc".source = "${plasma-phone-settings}/etc/xdg/kwinrc";
-        "xdg/kdeglobals".source = "${plasma-phone-settings}/etc/xdg/kdeglobals";
+      environment.etc = {
+        "xdg/kwinrc".source = "${pkgs.libsForQt5.plasma5.plasma-phone-settings}/etc/xdg/kwinrc";
+        # FIXME:
+        #    Something in there makes the PIN keyboard show up in the lockscreen
+        #    Not useful when a textual password is in use!!
+        "xdg/kdeglobals".source = "${pkgs.libsForQt5.plasma5.plasma-phone-settings}/etc/xdg/kdeglobals";
       };
+
+      services.xserver.displayManager.sessionPackages = [ pkgs.libsForQt5.plasma5.plasma-phone-components ];
     })
   ];
 
