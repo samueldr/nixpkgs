@@ -1315,6 +1315,8 @@ in
 
   bunyan-rs = callPackage ../development/tools/bunyan-rs { };
 
+  calindori = libsForQt5.callPackage ../tools/misc/calindori { };
+
   callaudiod = callPackage ../applications/audio/callaudiod { };
 
   calls = callPackage ../applications/networking/calls { };
