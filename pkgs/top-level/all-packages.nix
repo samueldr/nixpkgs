@@ -24661,6 +24661,8 @@ in
 
   kpt = callPackage ../applications/networking/cluster/kpt { };
 
+  krecorder = libsForQt5.callPackage ../applications/audio/krecorder { };
+
   krita = libsForQt5.callPackage ../applications/graphics/krita { };
 
   krusader = libsForQt5.callPackage ../applications/misc/krusader { };
