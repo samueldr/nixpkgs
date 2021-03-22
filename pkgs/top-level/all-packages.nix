@@ -29108,6 +29108,8 @@ in
 
   plasma-dialer = libsForQt5.callPackage ../applications/networking/plasma-dialer { };
 
+  plasma-phonebook = libsForQt5.callPackage ../tools/misc/plasma-phonebook { };
+
   inherit (callPackages ../applications/misc/redshift {
     inherit (python3Packages) python pygobject3 pyxdg wrapPython;
     inherit (darwin.apple_sdk.frameworks) CoreLocation ApplicationServices Foundation Cocoa;
