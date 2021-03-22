@@ -29102,6 +29102,10 @@ in
 
   plasma-pass = libsForQt5.callPackage ../tools/security/plasma-pass { };
 
+  plasma-camera = libsForQt5.callPackage ../applications/graphics/plasma-camera/default.nix {
+    inherit (gst_all_1) gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad;
+  };
+
   inherit (callPackages ../applications/misc/redshift {
     inherit (python3Packages) python pygobject3 pyxdg wrapPython;
     inherit (darwin.apple_sdk.frameworks) CoreLocation ApplicationServices Foundation Cocoa;
