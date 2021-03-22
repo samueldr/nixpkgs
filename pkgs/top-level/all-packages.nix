@@ -6104,6 +6104,8 @@ in
 
   kwalletcli = libsForQt5.callPackage ../tools/security/kwalletcli { };
 
+  kweather = libsForQt5.callPackage ../applications/misc/kweather { };
+
   peruse = libsForQt5.callPackage ../tools/misc/peruse { };
 
   ksmoothdock = libsForQt5.callPackage ../applications/misc/ksmoothdock { };
