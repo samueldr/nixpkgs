@@ -176,6 +176,8 @@ in
 
   alda = callPackage ../development/interpreters/alda { };
 
+  alligator = libsForQt5.callPackage ../applications/networking/feedreaders/alligator { };
+
   among-sus = callPackage ../games/among-sus { };
 
   ankisyncd = callPackage ../servers/ankisyncd { };
