@@ -29112,6 +29112,8 @@ in
 
   plasma-phonebook = libsForQt5.callPackage ../tools/misc/plasma-phonebook { };
 
+  plasma-settings = libsForQt5.callPackage ../desktops/plasma-mobile/plasma-settings { };
+
   inherit (callPackages ../applications/misc/redshift {
     inherit (python3Packages) python pygobject3 pyxdg wrapPython;
     inherit (darwin.apple_sdk.frameworks) CoreLocation ApplicationServices Foundation Cocoa;
