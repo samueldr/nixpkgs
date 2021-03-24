@@ -8695,6 +8695,8 @@ in
 
   sozu = callPackage ../servers/sozu { };
 
+  spacebar-sms = libsForQt5.callPackage ../tools/networking/spacebar-sms { };
+
   sparsehash = callPackage ../development/libraries/sparsehash { };
 
   spectre-meltdown-checker = callPackage ../tools/security/spectre-meltdown-checker { };
