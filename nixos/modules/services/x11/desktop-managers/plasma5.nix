@@ -393,10 +393,21 @@ in
           plasma-phone-components
           plasma-nano
         ]
-        ++ lib.optionals (cfg.mobile.installRecommendedSoftware) [
+        ++ lib.optionals (cfg.mobile.installRecommendedSoftware) (with pkgs;[
           # Additional software made for Plasma Mobile.
-          pkgs.angelfish
-        ]
+          alligator
+          angelfish
+          calindori
+          kalk
+          kclock
+          krecorder
+          kweather
+          plasma-camera
+          plasma-dialer
+          plasma-phonebook
+          plasma-settings
+          spacebar-sms
+        ])
       ;
 
       # The following services are needed or the UI is broken.
