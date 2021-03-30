@@ -21097,6 +21097,8 @@ in
     openssl = openssl_1_0_2;
   };
 
+  libqofono = libsForQt5.callPackage ../tools/networking/libqofono { };
+
   linux-pam = callPackage ../os-specific/linux/pam { };
 
   nss_ldap = callPackage ../os-specific/linux/nss_ldap { };
