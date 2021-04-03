@@ -2886,6 +2886,8 @@ in
 
   lynis = callPackage ../tools/security/lynis { };
 
+  maliit-framework = libsForQt5.callPackage ../applications/misc/maliit-framework { };
+
   mapproxy = callPackage ../applications/misc/mapproxy { };
 
   marl = callPackage ../development/libraries/marl {};
