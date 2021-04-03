@@ -2979,6 +2979,8 @@ in
 
   maliit-framework = libsForQt5.callPackage ../applications/misc/maliit-framework { };
 
+  maliit-keyboard = libsForQt5.callPackage ../applications/misc/maliit-keyboard { };
+
   mapproxy = callPackage ../applications/misc/mapproxy { };
 
   marl = callPackage ../development/libraries/marl {};
