@@ -402,6 +402,8 @@ in
           kclock
           krecorder
           kweather
+          maliit-framework
+          maliit-keyboard
           plasma-camera
           plasma-dialer
           plasma-phonebook
