@@ -94,7 +94,10 @@ let
       EOF
     '';
 
-    filesToInstall = [ "u-boot.bin" ];
+    filesToInstall = [
+      "README.md"
+      "u-boot.bin"
+    ];
     extraMeta.platforms = ["aarch64-linux"];
   } // args);
 in
