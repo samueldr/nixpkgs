@@ -187,6 +187,9 @@ let
     # Fonts can be loaded?
     # (This font is assumed to always be provided as a fallback by NixOS)
     if loadfont /EFI/boot/unicode.pf2; then
+      set with_fonts=true
+    fi
+    if [ "\$textmode" != "true" -a "\$with_fonts" == "true" ]; then
       # Use graphical term, it can be either with background image or a theme.
       # input is "console", while output is "gfxterm".
       # This enables "serial" input and output only when possible.
@@ -264,6 +267,8 @@ let
 
     cat <<EOF > $out/EFI/boot/grub.cfg
 
+    set with_fonts=false
+    set textmode=false
     # If you want to use serial for "terminal_*" commands, you need to set one up:
     #   Example manual configuration:
     #    → serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1
@@ -274,6 +279,20 @@ let
     clear
     set timeout=10
     ${grubMenuCfg}
+
+    # This message will only be viewable when "gfxterm" is not used.
+    echo "Please press 't' to show the boot menu on this console"
+    hiddenentry 'Text mode' --hotkey 't' {
+      loadfont /EFI/boot/unicode.pf2
+      set textmode=true
+      terminal_output gfxterm console
+    }
+    hiddenentry 'GUI mode' --hotkey 'g' {
+      $(find ${config.isoImage.grubTheme} -iname '*.pf2' -printf "loadfont /EFI/boot/grub-theme/%P\n")
+      set textmode=false
+      terminal_output gfxterm 
+    }
+
 
     # If the parameter iso_path is set, append the findiso parameter to the kernel
     # line. We need this to allow the nixos iso to be booted from grub directly.
