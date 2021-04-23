@@ -235,12 +235,18 @@ let format' = format; in let
 
     ${if diskSize == "auto" then ''
       ${if partitionTableType == "efi" || partitionTableType == "hybrid" then ''
-        additionalSpace=$(( ($(numfmt --from=iec '${additionalSpace}') + $(numfmt --from=iec '${bootSize}')) / 1000 ))
+        additionalSpace=$(( ($(numfmt --from=iec '${additionalSpace}') + $(numfmt --from=iec '${bootSize}')) ))
       '' else ''
-        additionalSpace=$(( $(numfmt --from=iec '${additionalSpace}') / 1000 ))
+        additionalSpace=$(( $(numfmt --from=iec '${additionalSpace}') ))
       ''}
-      diskSize=$(( $(set -- $(du -d0 $root); echo "$1") + $additionalSpace ))
-      truncate -s "$diskSize"K $diskImage
+      requiredSpace=$(set -- $(du --bytes -d0 $root); echo "$1")
+      diskSize=$(( requiredSpace  + additionalSpace ))
+      truncate -s "$diskSize" $diskImage
+
+      printf "Automatic disk size...\n"
+      printf "  Space needed: %d bytes\n" $requiredSpace
+      printf "  Additional space: %d bytes\n" $additionalSpace
+      printf "  Disk image size: %d bytes\n" $diskSize
     '' else ''
       truncate -s ${toString diskSize}M $diskImage
     ''}
