@@ -239,7 +239,7 @@ let format' = format; in let
       '' else ''
         additionalSpace=$(( $(numfmt --from=iec '${additionalSpace}') ))
       ''}
-      requiredSpace=$(set -- $(du --bytes -d0 $root); echo "$1")
+      requiredSpace=$(set -- $(du --apparent-size --bytes -d0 $root); echo "$1")
       diskSize=$(( requiredSpace  + additionalSpace ))
       truncate -s "$diskSize" $diskImage
 
