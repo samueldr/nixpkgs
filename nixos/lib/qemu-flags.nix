@@ -24,7 +24,7 @@ rec {
   qemuBinary = qemuPkg: {
     x86_64-linux = "${qemuPkg}/bin/qemu-kvm -cpu max";
     armv7l-linux = "${qemuPkg}/bin/qemu-system-arm -enable-kvm -machine virt -cpu host";
-    aarch64-linux = "${qemuPkg}/bin/qemu-system-aarch64 -enable-kvm -machine virt,gic-version=host -cpu host";
+    aarch64-linux = "taskset -a -c 4,5 ${qemuPkg}/bin/qemu-system-aarch64 -enable-kvm -machine virt,gic-version=host -cpu host";
     powerpc64le-linux = "${qemuPkg}/bin/qemu-system-ppc64 -machine powernv";
     powerpc64-linux = "${qemuPkg}/bin/qemu-system-ppc64 -machine powernv";
     x86_64-darwin = "${qemuPkg}/bin/qemu-kvm -cpu max";
