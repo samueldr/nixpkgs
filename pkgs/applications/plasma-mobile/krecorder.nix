@@ -14,6 +14,11 @@
 mkDerivation rec {
   pname = "krecorder";
 
+  postPatch = ''
+    substituteInPlace CMakeLists.txt \
+      --replace '"5.82"' '"5.81"'
+  '';
+
   nativeBuildInputs = [
     cmake
     extra-cmake-modules
