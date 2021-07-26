@@ -222,6 +222,13 @@ in rec {
 
     boehmgc = boehmgc_nix;
 
+    patches = [
+      (fetchpatch {
+        url = "https://github.com/NixOS/nix/commit/89fba5c8473b8f8b2133698f1e1b9b14535c0bc0.patch";
+        sha256 = "0bpfmb7mvbxh6b6pr9v8a2hy0k0l4b4n6mmpr13bmzfki12cv0vb";
+      })
+    ];
+
     inherit storeDir stateDir confDir;
   });
 
