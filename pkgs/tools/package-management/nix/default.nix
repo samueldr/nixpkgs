@@ -214,10 +214,10 @@ in rec {
 
   nixStable = callPackage common (rec {
     pname = "nix";
-    version = "2.3.11";
+    version = "2.3.14";
     src = fetchurl {
       url = "https://nixos.org/releases/nix/${pname}-${version}/${pname}-${version}.tar.xz";
-      sha256 = "89a8d7995305a78b1561e6670bbf1879c791fc4904eb094bc4f180775a61c128";
+      sha256 = "sha256-cToMnZU3+UpjeiiXnG3clz9zn8Xk+TbB7UbqmLMrlFk=";
     };
 
     boehmgc = boehmgc_nix;
