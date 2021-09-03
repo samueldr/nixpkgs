@@ -22195,6 +22195,7 @@ with pkgs;
     ubootSopine
     ubootUtilite
     ubootWandboard
+    ubootMiyoo
     ;
 
   # Upstream Barebox:

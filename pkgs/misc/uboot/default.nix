@@ -36,12 +36,14 @@ let
   , ... } @ args: stdenv.mkDerivation ({
     pname = "uboot-${defconfig}";
 
-    version = if src == null then defaultVersion else version;
+    #version = if src == null then defaultVersion else version;
 
-    src = if src == null then defaultSrc else src;
+    #src = if src == null then defaultSrc else src;
+    src = builtins.fetchGit /Users/samuel/tmp/u-boot/miyoocfw;
+    version = "lol";
 
     patches = [
-      ./0001-configs-rpi-allow-for-bigger-kernels.patch
+      #./0001-configs-rpi-allow-for-bigger-kernels.patch
     ] ++ extraPatches;
 
     postPatch = ''
@@ -55,6 +57,7 @@ let
       dtc
       flex
       openssl
+      buildPackages.python2 # XXX
       (buildPackages.python3.withPackages (p: [
         p.libfdt
         p.setuptools # for pkg_resources
@@ -457,5 +460,11 @@ in {
     extraMeta.platforms = ["aarch64-linux"];
     BL31 = "${armTrustedFirmwareRK3399}/bl31.elf";
     filesToInstall = [ "u-boot.itb" "idbloader.img"];
+  };
+
+  ubootMiyoo = buildUBoot {
+    defconfig = "licheepi_nano_defconfig";
+    extraMeta.platforms = ["armv5tel-linux"];
+    filesToInstall = ["u-boot-sunxi-with-spl.bin"];
   };
 }
