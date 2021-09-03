@@ -30,6 +30,10 @@ rec {
     gcc = { abi = "elfv2"; }; # for gcc configuration
   };
 
+  armv5tel-linux = {
+    config = "armv5tel-unknown-linux-gnueabi";
+  } // platforms.sheevaplug;
+
   sheevaplug = {
     config = "armv5tel-unknown-linux-gnueabi";
   } // platforms.sheevaplug;
