@@ -293,7 +293,7 @@ let
       /* vim-plug is an extremely popular vim plugin manager.
       */
       /* Remove repeated "/." suffixes from a path */
-      stripDots = path: lib.head (builtins.split "(/\\.)*$" path);
+      stripDots = path: lib.addContextFrom path (lib.head (builtins.split "(/\\.)*$" path));
       plugImpl =
       (''
         source ${vimPlugins.vim-plug.rtp}/plug.vim
