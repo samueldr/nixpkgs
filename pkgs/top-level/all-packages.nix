@@ -3087,6 +3087,8 @@ with pkgs;
 
   kalker = callPackage ../tools/misc/kalker { };
 
+  kdiskmark = libsForQt5.callPackage ../tools/misc/kdiskmark { };
+
   kisslicer = callPackage ../tools/misc/kisslicer { };
 
   klaus = with python3Packages; toPythonApplication klaus;
