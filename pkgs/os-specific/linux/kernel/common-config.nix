@@ -273,6 +273,11 @@ let
       DRM_AMD_DC_DCN = whenAtLeast "5.11" yes;
       DRM_AMD_DC_HDCP = whenAtLeast "5.5" yes;
       DRM_AMD_DC_SI = whenAtLeast "5.10" yes;
+
+      # Replacement for "legacy" FB_* drivers like FB_VESA.
+      # We can't enable them at the moment due to lacking semantics in `boot.initrd.availableKernelModules`
+      # Enabling this as a module conflicts with built-in FB_SIMPLE.
+      DRM_SIMPLEDRM = whenAtLeast "5.14" no;
     } // optionalAttrs (stdenv.hostPlatform.system == "x86_64-linux") {
       # Intel GVT-g graphics virtualization supports 64-bit only
       DRM_I915_GVT = whenAtLeast "4.16" yes;
@@ -884,6 +889,8 @@ let
       # Many ARM SBCs hand off a pre-configured framebuffer.
       # This always can can be replaced by the actual native driver.
       # Keeping it a built-in ensures it will be used if possible.
+      # Starting with 5.14, DRM_SIMPLEDRM would be preferred.
+      # See comment attached to `DRM_SIMPLEDRM`.
       FB_SIMPLE = yes;
 
     } // optionalAttrs (versionAtLeast version "5.4" && (stdenv.hostPlatform.system == "x86_64-linux" || stdenv.hostPlatform.system == "aarch64-linux")) {
