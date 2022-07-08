@@ -69,6 +69,7 @@ rec {
 
   cpuTypes = with significantBytes; setTypes types.openCpuType {
     arm      = { bits = 32; significantByte = littleEndian; family = "arm"; };
+    armv4t   = { bits = 32; significantByte = littleEndian; family = "arm"; version = "4"; arch = "armv4t"; };
     armv5tel = { bits = 32; significantByte = littleEndian; family = "arm"; version = "5"; arch = "armv5t"; };
     armv6m   = { bits = 32; significantByte = littleEndian; family = "arm"; version = "6"; arch = "armv6-m"; };
     armv6l   = { bits = 32; significantByte = littleEndian; family = "arm"; version = "6"; arch = "armv6"; };
