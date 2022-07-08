@@ -72,6 +72,12 @@ rec {
     };
   };
 
+  armv4 = {
+    gcc = {
+      arch = "armv4t";
+    };
+  };
+
   sheevaplug = {
     linux-kernel = {
       name = "sheevaplug";
@@ -547,6 +553,7 @@ rec {
     else if platform.isAarch32 then let
       version = platform.parsed.cpu.version or null;
       in     if version == null then pc
+        else if lib.versionOlder version "5" then armv4
         else if lib.versionOlder version "6" then sheevaplug
         else if lib.versionOlder version "7" then raspberrypi
         else armv7l-hf-multiplatform
