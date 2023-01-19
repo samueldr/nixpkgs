@@ -26448,6 +26448,7 @@ with pkgs;
     ubootAmx335xEVM
     ubootClearfog
     ubootCubieboard2
+    ubootEspressobin
     ubootGuruplug
     ubootJetsonTK1
     ubootLibreTechCC
