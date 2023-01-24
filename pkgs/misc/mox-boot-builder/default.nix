@@ -2,7 +2,6 @@
 , lib
 , fetchgit
 , buildPackages
-, pkgsCross
 }:
 
 stdenv.mkDerivation {
@@ -15,9 +14,12 @@ stdenv.mkDerivation {
     fetchSubmodules = false;
   };
 
-  nativeBuildInputs = [ pkgsCross.arm-embedded.stdenv.cc ];
+  nativeBuildInputs = [
+    buildPackages.stdenv.cc # Needed as HOSTCC for build helpers during the build
+  ];
 
   makeFlags = [
+    "HOSTCC=${buildPackages.stdenv.cc.targetPrefix}cc"
     "CROSS_CM3=${buildPackages.gcc-arm-embedded}/bin/arm-none-eabi-"
     "wtmi_app.bin"
   ];
@@ -33,7 +35,7 @@ stdenv.mkDerivation {
   meta = with lib; {
     description = "BL32 firmware for A3700 SOCs";
     license = licenses.unfreeRedistributableFirmware;
-    platforms = platforms.linux;
     maintainers = [ /* you! */ ];
+    platforms = [ "aarch64-linux" ];
   };
 }
