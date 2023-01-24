@@ -5,7 +5,7 @@
 , pkgsCross
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "mox-boot-builder";
   version = "v2022.08.30";
   src = fetchgit {
@@ -15,8 +15,6 @@ stdenv.mkDerivation rec {
     fetchSubmodules = false;
   };
 
-  installDir = "$out";
-
   nativeBuildInputs = [ pkgsCross.arm-embedded.stdenv.cc ];
 
   makeFlags = [
@@ -24,23 +22,18 @@ stdenv.mkDerivation rec {
     "wtmi_app.bin"
   ];
 
-  filesToInstall = ["wtmi_app.bin"];
-
   installPhase = ''
     runHook preInstall
 
-    mkdir -p ${installDir}
-    cp ${lib.concatStringsSep " " filesToInstall} ${installDir}
+    mkdir -p $out
+    cp wtmi_app.bin $out
 
     runHook postInstall
   '';
   meta = with lib; {
     description = "BL32 firmware for A3700 SOCs";
-    longDescription = ''
-        This package contains firmware source code for a3700 chips by Marvell
-    '';
     license = licenses.unfreeRedistributableFirmware;
-    maintainers = [];
     platforms = platforms.linux;
+    maintainers = [ /* you! */ ];
   };
 }
