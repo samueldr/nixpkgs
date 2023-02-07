@@ -1,9 +1,11 @@
 { mkDerivation
 , stdenv
+, gcc11Stdenv
 , lib
 , extra-cmake-modules
 , kdoctools
 , fetchpatch
+, fetchurl
 , libepoxy
 , lcms2
 , libICE
@@ -57,13 +59,24 @@
 , plasma-framework
 , libqaccessibilityclient
 , python3
+, wrapQtAppsHook
 }:
 
 # TODO (ttuegel): investigate qmlplugindump failure
 
-mkDerivation {
+let mirror = "mirror://kde"; in # Just so `src` is exact copy-paste from srcs.nix
+
+gcc11Stdenv.mkDerivation rec {
   pname = "kwin";
-  nativeBuildInputs = [ extra-cmake-modules kdoctools ];
+
+    version = "5.26.90";
+    src = fetchurl {
+      url = "${mirror}/unstable/plasma/5.26.90/kwin-5.26.90.tar.xz";
+      sha256 = "1460kr2dmmqbalklyk1kdj7fsw8rk0k32y5plhvrgxkvd0m1nvia";
+      name = "kwin-5.26.90.tar.xz";
+    };
+
+  nativeBuildInputs = [ extra-cmake-modules kdoctools wrapQtAppsHook ];
   buildInputs = [
     libepoxy
     lcms2
@@ -147,6 +160,10 @@ mkDerivation {
   ];
   CXXFLAGS = [
     ''-DNIXPKGS_XWAYLAND=\"${lib.getBin xwayland}/bin/Xwayland\"''
+  ] ++ lib.optionals stdenv.isAarch64 [
+  # ¯\_(ツ)_/¯
+  # /nix/store/grqh2wygy9f9wp5bgvqn4im76v82zmcx-binutils-2.39/bin/ld: showpaint_config.cpp:(.text+0x238): undefined reference to `__aarch64_ldadd4_acq_rel'                                                          
+    "-mno-outline-atomics"
   ];
   postInstall = ''
     # Some package(s) refer to these service types by the wrong name.
