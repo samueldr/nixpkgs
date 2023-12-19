@@ -370,6 +370,8 @@ in {
 
     kvdo = callPackage ../os-specific/linux/kvdo {};
 
+    lci-ldx9000 = callPackage ../os-specific/linux/lci-ldx9000 {};
+
     lenovo-legion-module = callPackage ../os-specific/linux/lenovo-legion { };
 
     linux-gpib = callPackage ../applications/science/electronics/linux-gpib/kernel.nix { };
