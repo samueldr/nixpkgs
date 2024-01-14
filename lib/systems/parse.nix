@@ -308,7 +308,9 @@ rec {
     ghcjs    = { execFormat = unknown; families = { }; };
     genode   = { execFormat = elf;     families = { }; };
     mmixware = { execFormat = unknown; families = { }; };
+    btron    = { execFormat = elf;     families = { /* tron */ }; };
   } // { # aliases
+    unknown = kernels.btron; # XXX
     # 'darwin' is the kernel for all of them. We choose macOS by default.
     darwin = kernels.macos;
     watchos = kernels.ios;
@@ -423,6 +425,8 @@ rec {
         then { cpu = elemAt l 0;                      kernel = "windows";  abi = "msvc";     }
       else if (elemAt l 1) == "elf"
         then { cpu = elemAt l 0; vendor = "unknown";  kernel = "none";     abi = elemAt l 1; }
+      else if elemAt l 1 == "unknown" # XXX btron hack
+        then { cpu = elemAt l 0;                      kernel = "unknown";  abi = "elf";     }
       else   { cpu = elemAt l 0;                      kernel = elemAt l 1;                   };
     "3" =
       # cpu-kernel-environment
