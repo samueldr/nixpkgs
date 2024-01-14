@@ -1,0 +1,26 @@
+From fd06d94cfbd464c7c7c81d4fd960ead989a34126 Mon Sep 17 00:00:00 2001
+From: Samuel Dionne-Riel <samuel@dionne-riel.com>
+Date: Sat, 13 Jan 2024 13:12:37 -0500
+Subject: [PATCH] bzcomp: Fix build
+
+Signed-off-by: Samuel Dionne-Riel <samuel@dionne-riel.com>
+---
+ tool/src/comp.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tool/src/comp.h b/tool/src/comp.h
+index dd28ba9..e40a99f 100644
+--- a/tool/src/comp.h
++++ b/tool/src/comp.h
+@@ -208,7 +208,7 @@ EXPORT	W	CompWrite(VP buf, W len)
+ 			if (n < wpos) n = BUFSZ;
+ 			if ((n -= wpos) > len) n = len;
+ 			memcpy(&wbuf[wpos], buf, n);
+-			(UB*)buf += n;
++			buf += n;
+ 			len -= n;
+ 			wpos = BUFPOS(wpos + n);
+ 		}
+-- 
+2.42.0
+

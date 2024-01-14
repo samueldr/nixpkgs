@@ -1,0 +1,26 @@
+From 4b168393655d554d75157f3c481946c9eab155e6 Mon Sep 17 00:00:00 2001
+From: Samuel Dionne-Riel <samuel@dionne-riel.com>
+Date: Sat, 13 Jan 2024 13:12:45 -0500
+Subject: [PATCH] mkbtf: Fix build
+
+Signed-off-by: Samuel Dionne-Riel <samuel@dionne-riel.com>
+---
+ tool/src/mkbtf.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/tool/src/mkbtf.c b/tool/src/mkbtf.c
+index dba731e..a289e09 100644
+--- a/tool/src/mkbtf.c
++++ b/tool/src/mkbtf.c
+@@ -1,6 +1,8 @@
+ /*
+ 	mkbtf.c
+ */
++#include	<string.h>
++#include	<stdlib.h>
+ #include	<stdio.h>
+ 
+ typedef	int		INT;
+-- 
+2.42.0
+
