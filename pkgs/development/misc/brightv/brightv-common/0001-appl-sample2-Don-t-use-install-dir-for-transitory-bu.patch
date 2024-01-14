@@ -1,0 +1,31 @@
+From 408dcafed1c6bb67777bd37110a9a4698d51a7d0 Mon Sep 17 00:00:00 2001
+From: Samuel Dionne-Riel <samuel@dionne-riel.com>
+Date: Sat, 13 Jan 2024 15:41:43 -0500
+Subject: [PATCH] appl/sample2: Don't use install dir for transitory build
+ files
+
+Signed-off-by: Samuel Dionne-Riel <samuel@dionne-riel.com>
+---
+ appl/sample2/src/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/appl/sample2/src/Makefile b/appl/sample2/src/Makefile
+index 686efe6..79e727f 100644
+--- a/appl/sample2/src/Makefile
++++ b/appl/sample2/src/Makefile
+@@ -84,10 +84,10 @@ install: $(INST:%=$(EXE_INSTALLDIR)/%)
+ # 原紙
+ FORM_NAME = 手帳用紙
+ 
+-$(TARGET).form: $(TARGET).fsn $(EXE_INSTALLDIR)/txed.fsn ../src/form.tad
++$(TARGET).form: $(TARGET).fsn txed.fsn ../src/form.tad
+ 	$(MKBTF) -o$@ -a0x001c -t$(FORM_NAME) \
+ 		8.0.$(TARGET).fsn \
+-		8.0.$(EXE_INSTALLDIR)/txed.fsn \
++		8.0.txed.fsn \
+ 		1.0.../src/form.tad
+ 
+ # 圧縮アーカイブ
+-- 
+2.42.0
+

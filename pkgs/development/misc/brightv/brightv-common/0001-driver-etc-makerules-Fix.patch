@@ -1,0 +1,23 @@
+From d172d953f56dede347756e71426ef4b9ca756825 Mon Sep 17 00:00:00 2001
+From: Samuel Dionne-Riel <samuel@dionne-riel.com>
+Date: Sat, 13 Jan 2024 15:25:52 -0500
+Subject: [PATCH] driver/etc/makerules: Fix
+
+Signed-off-by: Samuel Dionne-Riel <samuel@dionne-riel.com>
+---
+ driver/etc/makerules | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/driver/etc/makerules b/driver/etc/makerules
+index ea14a0d..b4aa94e 100644
+--- a/driver/etc/makerules
++++ b/driver/etc/makerules
+@@ -71,5 +71,3 @@ LDLIBS = -ldbg -lker -ldrv -lker -lg -lsys -lg -lf -lsvc
+ ### ネームリスト作成 ###
+ %.map: %
+ 	$(NM) $(NMFLAGS) $< | $(BD)/etc/chkundef > $@
+-
+-endif
+-- 
+2.42.0
+

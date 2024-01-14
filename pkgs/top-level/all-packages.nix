@@ -42048,4 +42048,7 @@ with pkgs;
   insulator2 = callPackage ../applications/misc/insulator2 {};
 
   animdl = python3Packages.callPackage ../applications/video/animdl { };
+
+  # XXX
+  brightv = callPackage ../development/misc/brightv { };
 }
