@@ -1,21 +1,11 @@
 { stdenvNoCC
 , fetchzip
-#, brightv-linux
-#, binutils
-#, perl
 }:
-
-let
-  # XXX split the package in discrete derivations for the bare tree and the fixed-up tools
-  brightv-linux = "BV.LINUX";
-  perl = "PERL";
-  binutils = "BINUTILS";
-in
 
 stdenvNoCC.mkDerivation {
   pname = "brightv.common";
   version = "4";
-  outputs = [ "out" "samples" ];
+  outputs = [ "out" "rawtools" "makerules" "samples" ];
   src = fetchzip {
     url = "http://www.chokanji.com/archive/brightv.common.tar.gz";
     hash = "sha256-h+UVRFwixW56BDCkH2y0Of5LvvEypmS8ieJTeKsZDfw=";
@@ -31,6 +21,7 @@ stdenvNoCC.mkDerivation {
   # NOTE: `spec` folder contains only a broken encoding manpage for `gterm`.
   buildPhase = ''
     mkdir -vp $samples
+    mkdir -vp $rawtools
     mkdir -vp $out
 
     # Actual platform-independent SDK bits
@@ -38,17 +29,27 @@ stdenvNoCC.mkDerivation {
 
     (
       cd $out/etc
-      for f in chkundef makedeps mkimport wch2hex; do
-        sed -i 'i#!${perl}/bin/perl' "$f"
+      for f in chkundef makedeps mkimport wch2hex mymake backup_copy; do
+        mv -t $rawtools $f;
       done
+    )
 
-      substituteInPlace makerules \
+    # The misc. makefile includes and helpers data is part of the SDK.
+    for d in appl driver util; do
+      mkdir -p $out/$d
+      mv -vt $out/$d/ $d/etc
+    done
+    mv -vt $out/appl/ appl/dbox
+
+    (
+      cd $out/
+      substituteInPlace etc/makerules \
         --replace 'PATH = .' "" \
         --replace 'CPP = /lib/cpp' 'CPP = $(GNUi386)/bin/cpp' \
         --replace '$(BD)/etc/backup_copy' 'true' \
-        --replace '$(BD)/etc/bzcomp' '${brightv-linux}/bin/bzcomp' \
-        --replace '$(BD)/etc/mkbtf' '${brightv-linux}/bin/mkbtf' \
-        --replace '$(BD)/etc/databox' '${brightv-linux}/bin/databox'
+        --replace '$(BD)/etc/bzcomp'  '@@brightv-bzcomp@@/bin/bzcomp' \
+        --replace '$(BD)/etc/mkbtf'   '@@brightv-mkbtf@@/bin/mkbtf' \
+        --replace '$(BD)/etc/databox' '@@brightv-databox@@/bin/databox'
 
       PROGS=(
         addr2line
@@ -72,17 +73,26 @@ stdenvNoCC.mkDerivation {
       )
 
       for PROG in ''${PROGS[@]}; do
-        substituteInPlace makerules \
-          --replace '$(GNUi386)/bin/'"$PROG" "${binutils}/bin/i386-unknown-gnu-$PROG"
+        substituteInPlace etc/makerules \
+          --replace '$(GNUi386)/bin/'"$PROG" '@@binutils@@/bin/'"i386-unknown-gnu-$PROG"
       done
-    )
 
-    # The misc. makefile includes and helpers data is part of the SDK.
-    for d in appl driver util; do
-      mkdir -p $out/$d
-      mv -vt $out/$d/ $d/etc
-    done
-    mv -vt $out/appl/ appl/dbox
+      MAKERULES=(
+        util/etc/makerules
+        driver/etc/makerules
+        appl/etc/makerules
+        unix/etc/makerules
+        etc/makerules
+        lib/etc/makerules
+      )
+      for f in "''${MAKERULES[@]}"; do
+        d="$(dirname $f)"
+        mkdir -p "$makerules/$d"
+        mv -v "$f" "$makerules/$f"
+        rmdir -v "$d"
+      done
+      rmdir -v driver util
+    )
 
     # Only sample files are copied over
     mv -v -t $samples appl driver util
