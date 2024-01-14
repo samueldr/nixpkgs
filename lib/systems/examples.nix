@@ -353,4 +353,15 @@ rec {
     # https://github.com/ghcjs/ghcjs/issues/53
     config = "javascript-unknown-ghcjs";
   };
+
+  #
+  # BTRON specification
+  #
+
+  # For B-right/V on i386
+  brightv-pcat = {
+    config = "i386-unknown-gnu";
+    # bespoke prebuilt libc
+    libc = "brightv";
+  };
 }
