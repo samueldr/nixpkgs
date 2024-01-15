@@ -34,6 +34,7 @@ rec {
         #include <stdio.h>
         int main() {
           printf("Hello, from a Nixpkgs-managed cross-compiler!\n");
+          printf(" -> cc: ${stdenv.cc.name}\n");
           return 0;
         }
         EOF
@@ -42,11 +43,13 @@ rec {
         )
       '';
       installPhase = ''
-        mkdir -vp $out/bin
-        cp -vt $out/bin hello
+        mkdir -vp $out
+        cp -vt $out hello
+        # Marker to track symlink updates
+        touch $out/"$(basename $out)"
       '';
     }
     ) {
-      stdenv = callPackage ({ gcc49Stdenv }: gcc49Stdenv) {};
+      stdenv = callPackage ({ gcc9Stdenv }: gcc9Stdenv) {};
     };
 }
