@@ -258,6 +258,10 @@ let
       "--disable-libgomp"
       # fatal error: stdint.h: No such file or directory
       "--disable-libquadmath"
+      # Target headers are not cromulent for libgcov
+      #  /nix/store/kzyswpway0fsqhm65px0klpxma6hn8y7-brightv-libc-4/include/sys/mman.h:102:1: error: unknown type name 'caddr_t'
+      #   102 | caddr_t mmap __P((caddr_t, size_t, int, int, int, off_t));
+      "--disable-gcov"
     ]
   ;
 
