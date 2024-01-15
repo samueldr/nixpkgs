@@ -1,0 +1,26 @@
+From 6668ae640fd388290b49083f88beac0918f90f93 Mon Sep 17 00:00:00 2001
+From: Samuel Dionne-Riel <samuel@dionne-riel.com>
+Date: Mon, 15 Jan 2024 02:16:16 -0500
+Subject: [PATCH] unix/sys: Add missing MMAP defines
+
+Signed-off-by: Samuel Dionne-Riel <samuel@dionne-riel.com>
+---
+ include/unix/sys/mman.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/unix/sys/mman.h b/include/unix/sys/mman.h
+index e610590..294dd3a 100644
+--- a/include/unix/sys/mman.h
++++ b/include/unix/sys/mman.h
+@@ -80,6 +80,8 @@
+  */
+ #define	MAP_FILE	0x0000	/* map from file (default) */
+ #define	MAP_ANON	0x1000	/* allocated from memory, swap space */
++#define	MAP_ANONYMOUS	MAP_ANON	/* synonym */
++#define	MAP_FAILED	-1	/* the value MAP_FAILED (that is, (void *) -1) */
+ 
+ /*
+  * Advice to madvise
+-- 
+2.42.0
+

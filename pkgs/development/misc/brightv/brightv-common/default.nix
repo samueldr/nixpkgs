@@ -15,6 +15,7 @@ stdenvNoCC.mkDerivation {
   patches = [
     ./0001-driver-etc-makerules-Fix.patch
     ./0001-appl-sample2-Don-t-use-install-dir-for-transitory-bu.patch
+    ./0001-unix-sys-Add-missing-MMAP-defines.patch
   ];
 
   # NOTE: `bin` folder empty and skipped
