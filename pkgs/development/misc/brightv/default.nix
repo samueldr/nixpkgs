@@ -11,5 +11,14 @@ rec {
       sdk-common.out
       sdk-linux-headers.out
     ];
+    postBuild = ''
+      # Makes library files accessible to the more common `/lib` path.
+      (
+      cd $out/lib
+      for f in i386e2/*; do
+        ln -vs "$f"
+      done
+      )
+    '';
   };
 }
