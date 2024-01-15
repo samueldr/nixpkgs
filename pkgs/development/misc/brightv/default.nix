@@ -50,6 +50,5 @@ rec {
       '';
     }
     ) {
-      stdenv = callPackage ({ gcc9Stdenv }: gcc9Stdenv) {};
     };
 }
