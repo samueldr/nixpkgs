@@ -249,6 +249,18 @@ let
     ++ lib.optionals (targetPlatform.isMips && targetPlatform.parsed.abi.name == "gnu" && lib.versions.major version == "12") [
       "--disable-libsanitizer"
     ]
+    ++ lib.optionals (targetPlatform.libc == "brightv") [
+      # Target headers are not cromulent for gcc
+      "--without-headers"
+      # error: Pthreads are required to build libatomic
+      "--disable-libatomic"
+      # error: Pthreads are required to build libgomp
+      "--disable-libgomp"
+      # fatal error: stdint.h: No such file or directory
+      "--disable-libquadmath"
+      # FIXME: Works around `cannot find -lc: No such file or directory` when building libgcc
+      "--disable-shared"
+    ]
   ;
 
 in configureFlags
