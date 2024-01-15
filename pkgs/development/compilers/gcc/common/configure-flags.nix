@@ -258,8 +258,6 @@ let
       "--disable-libgomp"
       # fatal error: stdint.h: No such file or directory
       "--disable-libquadmath"
-      # FIXME: Works around `cannot find -lc: No such file or directory` when building libgcc
-      "--disable-shared"
     ]
   ;
 

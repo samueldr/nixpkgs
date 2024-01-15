@@ -310,6 +310,7 @@ in
 ]
 ++ optionals (stdenv.targetPlatform.isBtron && is49) [
   ./brightv/4.9-0001-brightv-Inelegantly-hack-in-spec-configuration-for-B.patch
+  ./brightv/4.9-0001-brightv-Inelegantly-replace-lc-with-lg.patch
 ]
 
 
