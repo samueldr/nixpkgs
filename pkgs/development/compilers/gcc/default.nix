@@ -1,5 +1,7 @@
 { lib, stdenv, targetPackages, fetchurl, fetchpatch, noSysDirs
-, langC ? true, langCC ? true, langFortran ? false
+, langC ? true
+, langCC ? !(stdenv.targetPlatform.libc == "brightv") /* Broken on B-right/V... */
+, langFortran ? false
 , langAda ? false
 , langObjC ? stdenv.targetPlatform.isDarwin
 , langObjCpp ? stdenv.targetPlatform.isDarwin
