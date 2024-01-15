@@ -21,4 +21,32 @@ rec {
       )
     '';
   };
+
+  hello = callPackage (
+    { stdenv }:
+
+    stdenv.mkDerivation {
+      pname = "hello";
+      dontUnpack = true;
+      version = "0";
+      buildPhase = ''
+        cat > hello.c <<EOF
+        #include <stdio.h>
+        int main() {
+          printf("Hello, from a Nixpkgs-managed cross-compiler!\n");
+          return 0;
+        }
+        EOF
+        (PS4=" $ "; set -x
+        "$CC" -o hello hello.c
+        )
+      '';
+      installPhase = ''
+        mkdir -vp $out/bin
+        cp -vt $out/bin hello
+      '';
+    }
+    ) {
+      stdenv = callPackage ({ gcc49Stdenv }: gcc49Stdenv) {};
+    };
 }
