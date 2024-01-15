@@ -1,0 +1,41 @@
+From 05038e3b65a10f0629085e7fd0976fd28b032846 Mon Sep 17 00:00:00 2001
+From: Samuel Dionne-Riel <samuel@dionne-riel.com>
+Date: Mon, 15 Jan 2024 03:38:44 -0500
+Subject: [PATCH] brightv: Inelegantly replace `-lc` with `-lg`
+
+(cherry picked from commit e8f97bc7ed7ada8a63067163efba68412438d3be)
+Signed-off-by: Samuel Dionne-Riel <samuel@dionne-riel.com>
+---
+ libgcc/config/t-slibgcc | 2 +-
+ ltmain.sh               | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/libgcc/config/t-slibgcc b/libgcc/config/t-slibgcc
+index 099bf23e62f..bea98b16e99 100644
+--- a/libgcc/config/t-slibgcc
++++ b/libgcc/config/t-slibgcc
+@@ -26,7 +26,7 @@ SHLIB_MAP = @shlib_map_file@
+ SHLIB_OBJS = @shlib_objs@
+ SHLIB_DIR = @multilib_dir@
+ SHLIB_SLIBDIR_QUAL = @shlib_slibdir_qual@
+-SHLIB_LC = -lc
++SHLIB_LC = -lg
+ SHLIB_MAKE_SOLINK = $(LN_S) $(SHLIB_SONAME) $(SHLIB_DIR)/$(SHLIB_SOLINK)
+ SHLIB_INSTALL_SOLINK = $(LN_S) $(SHLIB_SONAME) \
+ 	$(DESTDIR)$(slibdir)$(SHLIB_SLIBDIR_QUAL)/$(SHLIB_SOLINK)
+diff --git a/ltmain.sh b/ltmain.sh
+index 70990740b6c..b5a1c309693 100644
+--- a/ltmain.sh
++++ b/ltmain.sh
+@@ -6715,7 +6715,7 @@ func_mode_link ()
+ 	  *)
+ 	    # Add libc to deplibs on all other systems if necessary.
+ 	    if test "$build_libtool_need_lc" = "yes"; then
+-	      deplibs="$deplibs -lc"
++	      deplibs="$deplibs -lg"
+ 	    fi
+ 	    ;;
+ 	  esac
+-- 
+2.42.0
+
