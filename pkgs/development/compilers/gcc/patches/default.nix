@@ -316,6 +316,10 @@ in
   ./brightv/9-0001-brightv-Inelegantly-hack-in-spec-configuration-for-B.patch
   ./brightv/9-0001-brightv-Inelegantly-replace-lc-with-lg.patch
 ]
+++ optionals (stdenv.targetPlatform.isBtron && is12) [
+  ./brightv/12-0001-brightv-Inelegantly-hack-in-spec-configuration-for-B.patch
+  ./brightv/12-0001-brightv-Inelegantly-replace-lc-with-lg.patch
+]
 
 
 ## gcc 4.8 only ##############################################################################

@@ -1,0 +1,151 @@
+From 2374adc16ca163773b5dbee3cb743dd02a9156be Mon Sep 17 00:00:00 2001
+From: Samuel Dionne-Riel <samuel@dionne-riel.com>
+Date: Mon, 15 Jan 2024 03:11:57 -0500
+Subject: [PATCH] brightv: Inelegantly hack-in spec configuration for B-right/V
+ SDK
+
+(cherry picked from commit ce3105872f10898b882f4e80fa639774c058f3ce)
+(cherry picked from commit d1195e71d4dd6ad7b9bd2ad0f2bb81691045225b)
+Signed-off-by: Samuel Dionne-Riel <samuel@dionne-riel.com>
+---
+ gcc/config/gnu-user.h             | 49 ++++++++++++++++++++++++-------
+ gcc/config/i386/gnu-user-common.h |  5 ++--
+ gcc/config/i386/gnu-user.h        |  9 ++++--
+ gcc/config/i386/gnu.h             | 11 ++-----
+ 4 files changed, 52 insertions(+), 22 deletions(-)
+
+diff --git a/gcc/config/gnu-user.h b/gcc/config/gnu-user.h
+index 857c0e077bf..c801322bfd4 100644
+--- a/gcc/config/gnu-user.h
++++ b/gcc/config/gnu-user.h
+@@ -94,16 +94,45 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+ #undef CPLUSPLUS_CPP_SPEC
+ #define CPLUSPLUS_CPP_SPEC "-D_GNU_SOURCE %(cpp)"
+ 
+-#define GNU_USER_TARGET_NO_PTHREADS_LIB_SPEC \
+-  "%{shared:-lc} \
+-   %{!shared:%{profile:-lc_p}%{!profile:-lc}}"
+-
+-#define GNU_USER_TARGET_LIB_SPEC \
+-  "%{pthread:-lpthread} " \
+-  GNU_USER_TARGET_NO_PTHREADS_LIB_SPEC
+-
+-#undef  LIB_SPEC
+-#define LIB_SPEC GNU_USER_TARGET_LIB_SPEC
++//#define GNU_USER_TARGET_NO_PTHREADS_LIB_SPEC \
++//  "%{shared:-lc} \
++//   %{!shared:%{profile:-lc_p}%{!profile:-lc}}"
++//
++//#define GNU_USER_TARGET_LIB_SPEC \
++//  "%{pthread:-lpthread} " \
++//  GNU_USER_TARGET_NO_PTHREADS_LIB_SPEC
++
++// Notes about the default system libraries
++/*
++	main    プロセス専用ライブラリ (スタートアップ関連など)
++	g       C 言語標準ライブラリ
++	svc OS  核インターフェースライブラリ
++	sys     システムライブラリ
++	f       実数演算ライブラリ
++
++	gcc     コンパイラ(gcc)付属ライブラリ
++	dbg     デバッグサポートライブラリ
++	lang    多国語ライブラリ
++
++	g     C language standard library
++	main  main process-specific library (startup related, etc.)
++	svc   OS kernel interface library
++	sys   system library
++	f     real number calculation library
++
++	gcc   library included with gcc compiler
++	dbg   debug support library
++	lang  multilingual library
++*/
++// This set is the minimum set required for a "util" (console app) to build.
++#undef LIB_SPEC
++#define LIB_SPEC \
++	" -lg " \
++	" -lmain " \
++	" -lsvc " \
++	" -lsys " \
++	" -lf " \
++	""
+ 
+ #if defined(HAVE_LD_EH_FRAME_HDR)
+ #define LINK_EH_SPEC "%{!static|static-pie:--eh-frame-hdr} "
+diff --git a/gcc/config/i386/gnu-user-common.h b/gcc/config/i386/gnu-user-common.h
+index 23b54c5be52..d1cd702e033 100644
+--- a/gcc/config/i386/gnu-user-common.h
++++ b/gcc/config/i386/gnu-user-common.h
+@@ -52,10 +52,11 @@ along with GCC; see the file COPYING3.  If not see
+    %{mpc64:crtprec64.o%s} \
+    %{mpc80:crtprec80.o%s}"
+ 
++// https://ik1--342--31132-vs-sakura-ne-jp.translate.goog/~uaa/gomitext/2014/201410.html?_x_tr_sl=ja&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=sc#05-Oct-2014
++// https://ik1-342-31132.vs.sakura.ne.jp/~uaa/gomitext/2014/20141005/specs
+ #undef  ENDFILE_SPEC
+ #define ENDFILE_SPEC \
+-  GNU_USER_TARGET_MATHFILE_SPEC " " \
+-  GNU_USER_TARGET_ENDFILE_SPEC
++	"%{!r: crtend.o%s} crtn.o%s"
+ 
+ #define TARGET_ASM_FILE_END file_end_indicate_exec_stack
+ 
+diff --git a/gcc/config/i386/gnu-user.h b/gcc/config/i386/gnu-user.h
+index 0102b2a6f3b..db93aed88fb 100644
+--- a/gcc/config/i386/gnu-user.h
++++ b/gcc/config/i386/gnu-user.h
+@@ -59,9 +59,11 @@ along with GCC; see the file COPYING3.  If not see
+    When the -shared link option is used a final link is not being
+    done.  */
+ 
++// https://ik1--342--31132-vs-sakura-ne-jp.translate.goog/~uaa/gomitext/2014/201410.html?_x_tr_sl=ja&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=sc#05-Oct-2014
++// https://ik1-342-31132.vs.sakura.ne.jp/~uaa/gomitext/2014/20141005/specs
+ #undef  ASM_SPEC
+ #define ASM_SPEC \
+-  "--32 %{msse2avx:%{!mavx:-msse2avx}}"
++	"%{v:-V} %{Qy:} %{!Qn:-Qy} %{n} %{T:} %{Ym,*} %{Yd,*} %{Wa,*:%*}"
+ 
+ #undef  SUBTARGET_EXTRA_SPECS
+ #define SUBTARGET_EXTRA_SPECS \
+@@ -76,8 +78,11 @@ along with GCC; see the file COPYING3.  If not see
+ 	-dynamic-linker %(dynamic_linker)}} \
+     %{static:-static} %{static-pie:-static -pie --no-dynamic-linker -z text}}"
+ 
++// https://ik1--342--31132-vs-sakura-ne-jp.translate.goog/~uaa/gomitext/2014/201410.html?_x_tr_sl=ja&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=sc#05-Oct-2014
++// https://ik1-342-31132.vs.sakura.ne.jp/~uaa/gomitext/2014/20141005/specs
+ #undef	LINK_SPEC
+-#define LINK_SPEC GNU_USER_TARGET_LINK_SPEC
++#define LINK_SPEC \
++	"-m elf_i386 %{static: -static} %{!r: %{!shared: %{!T: -T demand.lnk%s} %{!static: %{rdynamic: -export-dynamic} -dynamic-linker NotUse}} %{shared: -shared %{!T: -T shared.lnk%s}}}"
+ 
+ /* A C statement (sans semicolon) to output to the stdio stream
+    FILE the assembler definition of uninitialized global DECL named
+diff --git a/gcc/config/i386/gnu.h b/gcc/config/i386/gnu.h
+index 401e60c9a02..75be55e42ee 100644
+--- a/gcc/config/i386/gnu.h
++++ b/gcc/config/i386/gnu.h
+@@ -24,16 +24,11 @@ along with GCC.  If not, see <http://www.gnu.org/licenses/>.
+ #undef GNU_USER_DYNAMIC_LINKER
+ #define GNU_USER_DYNAMIC_LINKER "/lib/ld.so"
+ 
++// https://ik1--342--31132-vs-sakura-ne-jp.translate.goog/~uaa/gomitext/2014/201410.html?_x_tr_sl=ja&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=sc#05-Oct-2014
++// https://ik1-342-31132.vs.sakura.ne.jp/~uaa/gomitext/2014/20141005/specs
+ #undef	STARTFILE_SPEC
+-#if defined HAVE_LD_PIE
+ #define STARTFILE_SPEC \
+-  "%{!shared: %{pg|p|profile:%{static:gcrt0.o%s;:gcrt1.o%s};pie:Scrt1.o%s;static:crt0.o%s;:crt1.o%s}} \
+-   crti.o%s %{static:crtbeginT.o%s;shared|pie:crtbeginS.o%s;:crtbegin.o%s}"
+-#else
+-#define STARTFILE_SPEC \
+-  "%{!shared: %{pg|p|profile:%{static:gcrt0.o%s;:gcrt1.o%s};static:crt0.o%s;:crt1.o%s}} \
+-   crti.o%s %{static:crtbeginT.o%s;shared|pie:crtbeginS.o%s;:crtbegin.o%s}"
+-#endif
++	"%{!shared: crt0.o%s %{!r: %{static: crt1f.o%s} %{!static: crt1s.o%s}}} crti.o%s %{!r: %{!static: %{!shared: solib.o%s}} crtbegin.o%s}"
+ 
+ #ifdef TARGET_LIBC_PROVIDES_SSP
+ 
+-- 
+2.42.0
+
