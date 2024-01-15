@@ -308,6 +308,9 @@ in
     sha256 = "sha256-66AMP7/ajunGKAN5WJz/yPn42URZ2KN51yPrFdsxEuM=";
   })
 ]
+++ optionals (stdenv.targetPlatform.isBtron && is49) [
+  ./brightv/4.9-0001-brightv-Inelegantly-hack-in-spec-configuration-for-B.patch
+]
 
 
 ## gcc 4.8 only ##############################################################################
