@@ -8,6 +8,11 @@
 , bc
 , lib
 , buildPackages
+, buildType ?
+  if stdenv.isDarwin then
+    "CLANGPDB"
+  else
+    "GCC5"
 }:
 
 let
@@ -25,11 +30,6 @@ else if stdenv.hostPlatform.isRiscV64 then
   "RISCV64"
 else
   throw "Unsupported architecture";
-
-buildType = if stdenv.isDarwin then
-    "CLANGPDB"
-  else
-    "GCC5";
 
 edk2 = stdenv.mkDerivation rec {
   pname = "edk2";
@@ -104,6 +104,7 @@ edk2 = stdenv.mkDerivation rec {
 
   passthru = {
     inherit
+      buildType
       targetArch
     ;
     mkDerivation = projectDscPath: attrsOrFun: stdenv.mkDerivation (finalAttrs:
