@@ -103,6 +103,7 @@ edk2 = stdenv.mkDerivation rec {
   };
 
   passthru = {
+    inherit targetArch;
     mkDerivation = projectDscPath: attrsOrFun: stdenv.mkDerivation (finalAttrs:
     let
       attrs = lib.toFunction attrsOrFun finalAttrs;
