@@ -110,6 +110,11 @@ edk2 = stdenv.mkDerivation rec {
     {
       inherit (edk2) src;
 
+      # Used to allow overriding the `edk2` source in the phases.
+      # NOTE: Do not directly use the Nix value `edk2`, but instead rely on
+      #       the environment variable `$edk2` in phases defined here!
+      inherit edk2;
+
       depsBuildBuild = [ buildPackages.stdenv.cc ] ++ attrs.depsBuildBuild or [];
       nativeBuildInputs = [ bc pythonEnv ] ++ attrs.nativeBuildInputs or [];
       strictDeps = true;
@@ -118,13 +123,13 @@ edk2 = stdenv.mkDerivation rec {
 
       prePatch = ''
         rm -rf BaseTools
-        ln -sv ${edk2}/BaseTools BaseTools
+        ln -sv $edk2/BaseTools BaseTools
       '';
 
       configurePhase = ''
         runHook preConfigure
         export WORKSPACE="$PWD"
-        . ${edk2}/edksetup.sh BaseTools
+        . $edk2/edksetup.sh BaseTools
         runHook postConfigure
       '';
 
