@@ -391,11 +391,6 @@ let
           # https://github.com/rust-lang/rust/blob/2e44c17c12cec45b6a682b1e53a04ac5b5fcc9d2/src/bootstrap/config.rs#L415-L421
           isNoStdTarget =
             any (t: hasInfix t final.rust.rustcTarget) ["-none" "nvptx" "switch" "-uefi"];
-
-          # True when built with profiler.
-          withProfiler =
-            !(any (t: hasInfix t final.rust.rustcTarget) ["-uefi"]) && !final.isRedox
-          ;
         };
       };
   in assert final.useAndroidPrebuilt -> final.isAndroid;
