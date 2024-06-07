@@ -1,0 +1,37 @@
+/dts-v1/;
+
+#include "mapping-auto.dtsi"
+
+
+/ {
+	mapping {
+		qcom@sc8280xp-lenovo-thinkpad-x13s {
+			dmi-match {
+				sys_vendor = "LENOVO";
+				product_version = "ThinkPad X13s Gen 1";
+				// /sys/class/dmi/id/bios_date:03/14/2024
+				// /sys/class/dmi/id/bios_release:1.60
+				// /sys/class/dmi/id/bios_vendor:LENOVO
+				// /sys/class/dmi/id/bios_version:N3HET88W (1.60 )
+				// /sys/class/dmi/id/board_asset_tag:Not Available
+				// /sys/class/dmi/id/board_name:21BYS00000
+				// /sys/class/dmi/id/board_serial:W2CG37V000M
+				// /sys/class/dmi/id/board_vendor:LENOVO
+				// /sys/class/dmi/id/board_version:SDK0T76530 WIN
+				// /sys/class/dmi/id/chassis_asset_tag:No Asset Information
+				// /sys/class/dmi/id/chassis_serial:PW07TSD
+				// /sys/class/dmi/id/chassis_type:10
+				// /sys/class/dmi/id/chassis_vendor:LENOVO
+				// /sys/class/dmi/id/chassis_version:None
+				// /sys/class/dmi/id/ec_firmware_release:1.23
+				// /sys/class/dmi/id/product_family:ThinkPad X13s Gen 1
+				// /sys/class/dmi/id/product_name:21BYS00000
+				// /sys/class/dmi/id/product_serial:PW07TSD
+				// /sys/class/dmi/id/product_sku:LENOVO_MT_21BY_BU_Think_FM_ThinkPad X13s Gen 1
+				// /sys/class/dmi/id/product_uuid:2bcfdccc-2415-11b2-a85c-d84c8c5f2cb6
+				// /sys/class/dmi/id/product_version:ThinkPad X13s Gen 1
+				// /sys/class/dmi/id/sys_vendor:LENOVO
+			};
+		};
+	};
+};
