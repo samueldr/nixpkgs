@@ -318,6 +318,23 @@ let
       -O ${grubPkgs.grub2_efi.grubTarget} \
       ''${MODULES[@]}
     cp ${grubPkgs.grub2_efi}/share/grub/unicode.pf2 $out/EFI/boot/
+    ${
+      # XXX hack for POC
+    optionalString (targetArch == "aa64") ''
+    (
+      echo "-> Installing fdtshim as boot${targetArch}.efi"
+      cd $out/EFI/boot/
+      mv -v boot${targetArch}.efi grub.efi
+      cp ${pkgs.path + "/fdtshim.efi"} boot${targetArch}.efi
+      cd $out/EFI/
+      # We want the folder to be writable...
+      cp --no-preserve=mode -vr ${config.boot.kernelPackages.kernel}/dtbs dtbs
+      # To copy the DTB files mapping
+      cp ${pkgs.path + "/mapping.dtb"} dtbs/mapping.dtb
+    )
+    ''
+      # XXX get mapping.dtb from a Nix build
+      }
 
     cat <<EOF > $out/EFI/boot/grub.cfg
 
@@ -446,6 +463,11 @@ let
       mkdir ./contents && cd ./contents
       mkdir -p ./EFI/boot
       cp -rp "${efiDir}"/EFI/boot/{grub.cfg,*.efi} ./EFI/boot
+      ${
+        # XXX hack for POC
+      optionalString (targetArch == "aa64") ''
+      cp -vrp "${efiDir}"/EFI/dtbs ./EFI/dtbs
+      ''}
 
       # Rewrite dates for everything in the FS
       find . -exec touch --date=2000-01-01 {} +
