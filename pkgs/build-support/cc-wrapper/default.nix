@@ -323,7 +323,7 @@ stdenvNoCC.mkDerivation {
         local dst="$1"
         local wrapper="$2"
         export prog="$3"
-        export use_response_file_by_default=${if isClang && !isCcache then "1" else "0"}
+        export use_response_file_by_default=${if isClang && !isCcache && !targetPlatform.isEfiEnvironment then "1" else "0"}
         substituteAll "$wrapper" "$out/bin/$dst"
         chmod +x "$out/bin/$dst"
       }
