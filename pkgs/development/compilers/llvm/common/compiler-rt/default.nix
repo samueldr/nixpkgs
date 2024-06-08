@@ -120,6 +120,9 @@ stdenv.mkDerivation ({
     "-DSANITIZER_MIN_OSX_VERSION=10.10"
   ];
 
+  # XXX
+  enableParallelBuilding = false;
+
   outputs = [ "out" "dev" ];
 
   # TSAN requires XPC on Darwin, which we have no public/free source files for. We can depend on the Apple frameworks
