@@ -363,15 +363,4 @@ rec {
     # https://github.com/ghcjs/ghcjs/issues/53
     config = "javascript-unknown-ghcjs";
   };
-
-  #
-  # Rust + UEFI
-  #
-  x86_64-unknown-uefi = gnu64 // {
-    rustc.config = "x86_64-unknown-uefi";
-  };
-
-  aarch64-unknown-uefi = platforms.aarch64-multiplatform // aarch64-multiplatform // {
-    rustc.config = "aarch64-unknown-uefi";
-  };
 }
