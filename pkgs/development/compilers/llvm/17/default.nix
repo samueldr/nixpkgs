@@ -317,9 +317,8 @@ in let
       extraPackages = [ ];
       extraBuildCommands = mkExtraBuildCommands0 cc;
       nixSupport.cc-cflags =
-        [
-          "-nostartfiles"
-        ]
+        []
+        ++ lib.optional (!stdenv.targetPlatform.isEfiEnvironment) "-nostartfiles"
         ++ lib.optional stdenv.targetPlatform.isWasm "-fno-exceptions";
     };
 
