@@ -91,10 +91,11 @@ in
         chown ${user}:${group} /run/bugzilla
 
         echo "\$site_wide_secret = \"`head -c 32 /dev/urandom | base64`\";" >> /run/bugzilla/localconfig
-        chown -R ${user}:${group} /var/lib/bugzilla
 
         # XXX: Forcing true here after maybe successful 'install_setting_setup'
         ${cfg.package}/bin/checksetup.pl --no-templates --verbose ${initialConfig} || true
+
+        chown -R ${user}:${group} /var/lib/bugzilla
       '';
       serviceConfig = {
         # TODO: hardening, DynamicUser = true;
