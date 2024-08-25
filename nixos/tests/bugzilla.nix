@@ -19,6 +19,6 @@ import ./make-test-python.nix ({ lib, pkgs, ... }:
   testScript = ''
     machine.wait_for_unit("bugzilla")
     machine.wait_for_open_port(80)
-    machine.succeed("curl -f http://localhost/index.cgi 1>&2")
+    machine.succeed("curl --fail-with-body http://localhost/index.cgi 1>&2")
   '';
 })
