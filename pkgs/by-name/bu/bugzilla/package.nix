@@ -87,8 +87,19 @@ in stdenv.mkDerivation {
     cp -va Bugzilla $LIB_DIR/Bugzilla
     cp -va template $LIB_DIR/template
 
-    # XXX: Disable taint mode, as it breaks PERL5LIB which is used by perl.withPackages
-    ${perl}/bin/perl -pi -E "s|^#!(.+)/perl -T|#!\$1/perl|" *.cgi *.pl
+    # Make "taint mode" scripts explicitly rely on libraries.
+    # Environmental pollution is hardened against in "taint mode".
+
+    # First prepare additional args to the shebang
+    SHEBANG_ARGS="$(
+      IFS=" :"
+      for p in $out/share/bugzilla/lib $PERL5LIB; do
+        printf " -I%s" "$p"
+      done
+    )"
+
+    # Then append to shebang to work around tainted environment.
+    ${perl}/bin/perl -pi -E "s|^#!(.+)/perl -T|#!\$1/perl -T $SHEBANG_ARGS|" *.cgi *.pl
 
     # XXX: Set lib dir to $LIB_DIR
     ${perl}/bin/perl -pi -E "s|use lib qw\(. lib\);|use lib '$LIB_DIR';|" *.cgi *.pl
