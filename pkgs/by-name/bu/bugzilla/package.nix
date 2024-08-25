@@ -105,7 +105,7 @@ in stdenv.mkDerivation {
     done
   '';
 
-  doCheck = false;
+  doCheck = true;
 
   checkPhase = ''
     export NIX_BZ_DATADIR=$(mktemp -d)
