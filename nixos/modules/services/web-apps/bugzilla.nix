@@ -8,7 +8,7 @@ let
   rootDir = "${cfg.package}/share/bugzilla/wwwroot";
   user = "bugzilla";
   group = "bugzilla";
-  initialConfig = pkgs.writeText "bugzillaz-initial-config" ''
+  initialConfig = pkgs.writeText "bugzilla-initial-config" ''
     # All answers must be there for checksetup.pl to succeed
     $answer{'create_htaccess'} = 0;
     $answer{'webservergroup'} = "${group}";
