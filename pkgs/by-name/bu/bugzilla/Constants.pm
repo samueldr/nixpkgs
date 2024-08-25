@@ -700,7 +700,16 @@ sub _bz_locations {
     $datadir     = "data";
   }
 
+  # Workarounds for "config constants"
   $datadir =  ($ENV{NIX_BZ_DATADIR} // die "You must set NIX_BZ_DATADIR to point to your datadir");
+  $localconfig = ($ENV{NIX_BZ_LOCALCONFIG} // die "You must set NIX_BZ_LOCALCONFIG to your localconfig file");
+  # Launder taintedness.
+  if ($datadir =~ /(.*)/) {
+    $datadir = $1;
+  }
+  if ($localconfig =~ /(.*)/) {
+    $localconfig = $1;
+  }
 
   # We have to return absolute paths for mod_perl.
   # That means that if you modify these paths, they must be absolute paths.
@@ -714,7 +723,7 @@ sub _bz_locations {
     'templatedir'    => "$libpath/template",
     'template_cache' => "$datadir/template",
     'project'        => $project,
-    'localconfig'    =>  ($ENV{NIX_BZ_LOCALCONFIG} // die "You must set NIX_BZ_LOCALCONFIG to your localconfig file"),
+    'localconfig'    => $localconfig,
     'datadir'        => $datadir,
     'attachdir'      => "$datadir/attachments",
     'skinsdir'       => "$libpath/skins",
