@@ -93,7 +93,7 @@ in stdenv.mkDerivation {
     # First prepare additional args to the shebang
     SHEBANG_ARGS="$(
       IFS=" :"
-      for p in $out/share/bugzilla/lib $PERL5LIB; do
+      for p in $out/share/bugzilla/lib $PERL5LIB "${perl'}/lib/perl5/site_perl/${perl.version}"; do
         printf " -I%s" "$p"
       done
     )"
