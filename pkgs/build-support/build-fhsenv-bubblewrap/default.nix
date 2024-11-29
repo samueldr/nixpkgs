@@ -128,7 +128,8 @@ let
 
   indentLines = str: concatLines (map (s: "  " + s) (filter (s: s != "") (splitString "\n" str)));
   bwrapCmd = { initArgs ? "" }: ''
-    ignored=(/nix /dev /proc /etc ${optionalString privateTmp "/tmp"})
+    explicit=(/sys /run /var)
+    ignored=(/nix /dev /proc /etc ''${explicit[@]} ${optionalString privateTmp "/tmp"})
     ro_mounts=()
     symlinks=()
     etc_ignored=()
@@ -192,6 +193,14 @@ let
         # add it to the mount list
         auto_mounts+=(--bind "$dir" "$dir")
       fi
+    done
+
+    declare -a explicit_mounts
+    # mount explicit mounts
+    # works around breakage under environments where folders are hidden from readdir
+    for dir in ''${explicit[@]}; do
+      # add it to the mount list
+      auto_mounts+=(--bind "$dir" "$dir")
     done
 
     declare -a x11_args
@@ -266,6 +275,7 @@ let
       "''${ro_mounts[@]}"
       "''${symlinks[@]}"
       "''${auto_mounts[@]}"
+      "''${explicit_mounts[@]}"
       "''${x11_args[@]}"
       ${concatStringsSep "\n  " extraBwrapArgs}
       ${containerInit} ${initArgs}
